@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="reply">
+
+<sql id="base_column2">
+	   noteid,title,id,replycontent,date
+</sql>
+
+<select id="selectBynoteid" parameterType="int" resultType="reply">
+		select 
+		<include refid="base_column2" />
+		from reply where noteid = #{noteid}
+</select>
+
+
+
+<insert id="insert" parameterType="reply">
+		insert into reply (noteid,title,id,replycontent,date) values (#{noteid},#{title},#{id},#{replycontent},#{date})
+	</insert>
+<delete id="delete" parameterType="int">
+	delete from reply where noteid = #{noteid} and date = #{date}
+</delete>
+
+
+</mapper>

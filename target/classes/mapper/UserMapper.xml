@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="userMapper">
+
+	<sql id="base_column">
+	     password
+	</sql>
+     <select id="selectByEntity" parameterType="user" resultType="user">
+		select 
+		id,password,permission
+		from lode
+	</select>
+	<select id="selectByPrimary" parameterType="String" resultType="user">
+		select 
+		id,password,permission
+		from lode where id = #{id}
+	</select>
+	<select id="selectByPrimaryKey" parameterType="String" resultType="String">
+		select 
+		<include refid="base_column" />
+		from lode where id = #{id}
+	</select>
+	<insert id="insert" parameterType="user">
+		insert into lode (id,password,permission) values (#{id},#{password},#{permission})
+	</insert>
+	<delete id="delete" parameterType="String">
+		delete from lode where id = #{id}
+	</delete>
+    <update id="update" parameterType="user">
+		update lode 
+		<set>
+			<if test="password != null">
+				password = #{password},
+				permission = #{permission},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+</mapper>

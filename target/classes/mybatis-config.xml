@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<!-- changes from the defaults -->
+		<setting name="lazyLoadingEnabled" value="false" />
+	</settings>
+    
+    <typeAliases>
+		<typeAlias alias="user" type="com.bolo.entity.User" />
+		<typeAlias alias="notePad" type="com.bolo.entity.NotePad" />
+		<typeAlias alias="reply" type="com.bolo.entity.Reply" />
+	</typeAliases>
+    
+    <mappers>
+    	<mapper resource="mapper/UserMapper.xml"/>
+    	<mapper resource="mapper/NotePad.xml"/>
+    	<mapper resource="mapper/Reply.xml"/>
+    </mappers>
+</configuration>
