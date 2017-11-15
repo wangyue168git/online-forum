@@ -3,7 +3,7 @@
 <mapper namespace="notePad">
 
 <sql id="base_column1">
-	   noteid,title,id,content,date
+	   noteid,title,id,content,date,filename
 </sql>
  <select id="selectAll"  resultType="notePad">
 		select 
@@ -30,7 +30,7 @@
 </select>
 
 <insert id="insert" parameterType="notePad">
-		insert into notepad (title,id,content,date) values (#{title},#{id},#{content},#{date})
+		insert into notepad (title,id,content,date,filename) values (#{title},#{id},#{content},#{date},#{filename})
 	</insert>
 <delete id="delete" parameterType="int">
     delete from notepad  where noteid = #{noteid}

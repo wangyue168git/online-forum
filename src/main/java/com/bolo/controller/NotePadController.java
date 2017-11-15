@@ -1,12 +1,20 @@
 package com.bolo.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.bolo.redis.RedisCacheUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.data.redis.cache.RedisCache;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -21,6 +29,7 @@ import com.bolo.entity.Reply;
 import com.bolo.service.NotePadService;
 import com.bolo.service.ReplyService;
 import com.bolo.service.UserService;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 留言记录控制层
@@ -28,6 +37,7 @@ import com.bolo.service.UserService;
  * 2016-8-30
  */
 @Controller
+@Scope
 public class NotePadController {
 	
 	@Autowired
@@ -36,6 +46,21 @@ public class NotePadController {
 	private ReplyService replyService;
 	@Autowired
 	private UserService service;
+	@Autowired
+	private RedisCacheUtil redisCacheUtil;
+
+	private int x;
+
+
+    @RequestMapping(value="redis",method = RequestMethod.GET)
+    @ResponseBody
+    public String hashset(HttpServletRequest req, HttpServletResponse resp,ModelMap model){
+        NotePad notePad = new NotePad();
+        notePad.setTitle("123");
+        redisCacheUtil.hsetNotePad("123","1",notePad);
+        return  redisCacheUtil.hgetNotePad("123","1").toString();
+    }
+
 	
 	/**
 	 * 留言板主页
@@ -43,11 +68,47 @@ public class NotePadController {
 	 * @return
 	 */
 	@RequestMapping(value="notepad",method = RequestMethod.GET)
-	public String notePad(Model model){
+	public String notePad(Model model,HttpServletRequest req,HttpServletResponse resp){
+		HttpSession session = req.getSession();
+		if(req.getCookies()[0].getName().equals("sd")){
+			session.setAttribute("id", req.getCookies()[0].getValue());
+		}
 		model.addAttribute("notelist", noteService.getNotes());
 		return "page/notepad.jsp";
 	}
-	
+
+	@RequestMapping(value="upload.do",method = RequestMethod.POST)
+    @ResponseBody
+	public String upload(@RequestParam(value = "file", required = false) MultipartFile file, HttpServletRequest req, HttpServletResponse resp,ModelMap model){
+		String savePath = req.getSession().getServletContext().getRealPath("upload");
+		String fileName = file.getOriginalFilename();
+//      String fileName = new Date().getTime()+".jpg";
+        File targetFile = new File(savePath, fileName);
+        if(!targetFile.exists()){
+            targetFile.mkdirs();
+        }
+        if(file.getSize() > 1024 * 1000 ){
+            return "false";
+        }
+        try {
+            file.transferTo(targetFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(fileName != null){
+            HttpSession session = req.getSession();
+            session.setAttribute("lastFileName",fileName);
+        }
+        model.addAttribute("fileUrl", req.getContextPath()+"/upload/"+fileName);
+        return  "true";
+    }
+
+    @RequestMapping(value="upload/{filename}",method = RequestMethod.GET)
+    public String getImage(@PathVariable("filename") String filename,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
+        return  filename;
+    }
+
 	/**
 	 * 查询
 	 * @param str
@@ -71,7 +132,11 @@ public class NotePadController {
 	 * @return
 	 */
 	@RequestMapping(value="shownotepad",method = RequestMethod.GET)
-	public String showPad(Model model){
+	public String showPad(Model model,HttpServletRequest req,HttpServletResponse resp){
+		HttpSession session = req.getSession();
+		if(req.getCookies()[0].getName().equals("sd")){
+			session.setAttribute("id", req.getCookies()[0].getValue());
+		}
 		model.addAttribute("notelist", noteService.getNotes());
 		return "page/usernotepad.jsp";
 	}
@@ -91,12 +156,19 @@ public class NotePadController {
 	@ResponseBody
 	public String insertNote(NotePad notePad,HttpServletRequest req,HttpServletResponse resp){
 		HttpSession session = req.getSession();
-		String id = (String) session.getAttribute("id");
+        String id = null;
+        for (Cookie cookie : req.getCookies()) {
+            if(cookie.getName().equals("sd")){
+                id = cookie.getValue();
+                break;
+            }
+        }
+		session.setAttribute("lastNotePad",notePad);
+		notePad.setFilename((String)session.getAttribute("lastFileName"));
 		if(service.getUser(id).getPermission().equals("-1")){
 			return "stop";
 		}else{
-			String result = noteService.insert(notePad);
-		    return result;
+		    return noteService.insert(notePad);
 		}
 	}
 	/**
@@ -208,6 +280,9 @@ public class NotePadController {
 	@RequestMapping(value="exit",method = RequestMethod.GET)
 	public String exit(HttpServletRequest req,HttpServletResponse resp,ModelMap model){
 	    req.getSession().removeAttribute("id");
+		Cookie cookie = new Cookie("sd","bye bye!");
+		cookie.setMaxAge(0);
+		resp.addCookie(cookie);
 		return "page/lode.jsp";
 	}
 	

@@ -14,6 +14,15 @@
 body {
 	background-image: url();
 }
+.img-responsive1 {
+    display: inline-block;
+    height: auto;
+    max-width: 30%;
+}
+.img-responsive {
+    height: auto;
+    max-width: 70%;
+}
 </style>
 </head>  
 <body> 
@@ -48,18 +57,27 @@ body {
 		</form>
 	</div>
 	 <ul class="nav navbar-nav navbar-right">
-      <li><a href="exit"><span class="glyphicon glyphicon-log-in"></span> 退出</a></li>
+      <li><a href="javascript:delCookie()"><span class="glyphicon glyphicon-log-in"></span> 退出</a></li>
     </ul>
      </div> 
- </nav> 
-
-
+ </nav>
 
  <h2 class="text-center">我的论坛
         <small> 留下你的足迹ba</small>
  </h2>
  <br>
  <script type="text/javascript">
+
+
+     function delCookie()
+     {
+         window.location.href = "exit";
+         var exp = new Date();
+         exp.setTime(exp.getTime() - 1);
+         var cval=getCookie("sd");
+         if(cval!=null)
+             document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+     }
  function toopen(noteid){
 	 $.ajax({
    	  url:"selectreply",
@@ -121,8 +139,9 @@ function replyon(){
 		<p>message：${notePad.content}
 		
 		</p>
-		 
-		  </div>
+            <%--<img src="upload/${notePad.filename}" class="img-responsive" >--%>
+           <img alt="-----来自上帝之手 :)"   class="img-responsive1" onmouseover="this.style.cursor='pointer';this.style.cursor='hand'" onmouseout="this.style.cursor='default'"  src="upload/${notePad.filename}" onclick="javascript:showimage('upload/${notePad.filename}');"/>
+        </div>
 	     <div class="panel-footer">
 	     
 	     <div class="panel panel-info">
@@ -166,6 +185,7 @@ function replyon(){
  function add(){
 	    var title = $("#title").val();
 	    var id = $("#id11").val();
+
 	    if(id==""){
 	    	alert("未登录用户，请先登录");
 	    	location.href="lode";
@@ -175,9 +195,27 @@ function replyon(){
 		   alert("标题不能为空");
 		   return false;      
 	    }else{
+
+            var form = new FormData(document.getElementById("upload"));
+            $.ajax({
+                cache: true,
+                url:"upload.do",
+                type:"POST",
+                data:form,
+                async:false,
+                processData:false,
+                contentType:false,
+                success:function(data){
+                    if(data=="true"){
+                    }
+
+                }
+            });
+
 	       var result=false;
 	       var date = new Date().toLocaleString();
 	       $("#date").val(date);
+	       //$("#filename").val($("#file").value);
 	       $.ajax({
 	    	  cache: true,
 	    	  url:"insertnote",
@@ -186,6 +224,7 @@ function replyon(){
 	    	  async:false,
 	    	  success:function(data){
 	    		  if(data=="true"){
+                      //_s();
 	    			  $('#myModal1').modal('hide'); //设置myModal1关闭
 	    			  alert("发表成功");
 	    			  location.reload();
@@ -198,7 +237,22 @@ function replyon(){
 	    return result;
 	    }     
  }
-
+ function _s() {
+             var f = document.getElementsByName("file").files;
+             //上次修改时间
+            alert(f[0].lastModifiedDate);
+            //名称
+             alert(f[0].name);
+             //大小 字节
+             alert(f[0].size);
+             //类型
+             alert(f[0].type);
+          }
+ function showimage(source)
+ {
+     $("#ShowImage_Form").find("#img_show").html("<image src='"+source+"' class='carousel-inner img-responsive img-rounded center-block' />");
+     $("#ShowImage_Form").modal();
+ }
 
 </script>       
       
@@ -270,10 +324,16 @@ function replyon(){
 	   <div class="col-sm-10">
 		<textarea class="form-control" rows="3" id="content"  name="content" placeholder="content"></textarea>
 		<input type="hidden" class="form-control" id="date" value="" name="date">
+           <input type="hidden" class="form-control" id="filename" value="" name="filename">
 		</div>	
 	</div>
-	
 </form>
+            <div class="form-group">
+                <label for="lastname"  class="col-sm-2 control-label">上传图片</label>
+                <form action="upload.do" method="post" enctype="multipart/form-data" id="upload">
+                    <input type="file" name="file" id = "file"/>
+                </form>
+            </div>
 	<div class="modal-footer">
 			<button type="button" class="btn btn-default" data-dismiss="modal">关闭
 			</button>
@@ -284,6 +344,20 @@ function replyon(){
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal -->
 </div>
+
+
+
+
+﻿<div id="ShowImage_Form" class="modal">
+    <div class="modal-header">
+        <button data-dismiss="modal" class="close" type="button"></button>
+    </div>
+    <div class="modal-body">
+        <div id="img_show">
+        </div>
+    </div>
+</div>
+
 
    <div id="example" style="text-align: center"> <ul id="pageLimit"></ul> </div>
 <script type="text/javascript">

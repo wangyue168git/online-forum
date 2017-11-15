@@ -7,7 +7,9 @@
 	http://www.springframework.org/schema/context 
 	http://www.springframework.org/schema/context/spring-context-3.0.xsd 
 	http://www.springframework.org/schema/mvc 
-    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+    http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task-3.2.xsd">
 
 	<description>Spring-web MVC配置</description>
 	
@@ -19,7 +21,7 @@
 	
 	
 	<!-- 当请求应用程序首页时，将执行/lode请求，还可以设定成forward -->
-	<mvc:view-controller path="/" view-name="redirect:/lode" />
+	<mvc:view-controller path="/" view-name="redirect:/shownotepad" />
 
 	<!-- 这两个类用来启动基于Spring MVC的注解功能，将控制器与方法映射加入到容器中 -->
 	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" /> 
@@ -30,13 +32,13 @@
        </list> 
      </property> 
     </bean>
-   
+    <!-- 支持上传文件 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+      <property name="defaultEncoding" value="UTF-8"></property>
+      <property name="maxInMemorySize" value="10240000"></property>
+    </bean>
 
-   
-    
- 
- 
 
-   
-  
+
+
 </beans>

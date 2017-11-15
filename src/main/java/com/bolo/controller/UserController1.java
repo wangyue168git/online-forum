@@ -2,11 +2,13 @@ package com.bolo.controller;
 
 import java.util.List;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -121,6 +123,14 @@ public class UserController1 {
 			String password1 = service.getUser(id).getPassword();
 			String permission = service.getUser(id).getPermission();
 		if(password.equals(password1)){
+		    Cookie cookie = new Cookie("sd",id);
+		    //Cookie cookie1 = new Cookie("JSESSIONID",id);
+		    //cookie1.setMaxAge(60*60);
+		    cookie.setMaxAge(60*60);
+		    resp.addCookie(cookie);
+		    //resp.addCookie(cookie1);
+		    //resp.setStatus(200);
+
 			HttpSession session = req.getSession();
 			session.setAttribute("id", id);
 			if(permission.equals("1")){
