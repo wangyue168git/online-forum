@@ -12,7 +12,7 @@
 <style type="text/css">
 
 body {
-	background-image: url();
+	/*background-image: url();url为空时，浏览器会把其解析为当前页面地址，再次请求当前页面，导致重复请求问题*/
 }
 .img-responsive1 {
     display: inline-block;

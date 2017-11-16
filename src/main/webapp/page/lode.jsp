@@ -177,7 +177,7 @@ input, textarea, select, label {
 
 <body>
 
-<form action="show" class="login" method="post"">
+<form action="show" class="login" method="post">
     <h1>登陆界面</h1>
     <input type="text" name="name" class="login-input" placeholder="username">
     <input type="password" name="password" id="password" placeholder="password"class="login-input" >

@@ -1,10 +1,16 @@
 package com.bolo.entity;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
 /**
  * 用户对象
  * @author 王越
  * 2016-8-30
  */
-public class User {
+@Data
+public class User implements Serializable {
 	
 	private String id;  //用户名
 	private String password;  //密码

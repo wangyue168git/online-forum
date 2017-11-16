@@ -2,7 +2,13 @@ package com.bolo.service;
 
 import java.util.List;
 
+import com.bolo.test.CronTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.bolo.entity.NotePad;
@@ -15,6 +21,8 @@ import com.bolo.mybatis.MyBatisDao;
  */
 @Service
 public class NotePadService {
+
+    private static final Logger logger = LoggerFactory.getLogger(NotePadService.class);
 	
 	@Autowired
 	private MyBatisDao myBatisDao;
@@ -23,7 +31,9 @@ public class NotePadService {
 	 * 所有留言
 	 * @return
 	 */
+	@Cacheable(value = "userCache",keyGenerator = "customKeyGenerator")
 	public List<NotePad> getNotes(){
+	    logger.info("我是从数据库取的数据。。。。");
 		return myBatisDao.getList1("notePad.selectAll");
 	}
 	/**
@@ -31,6 +41,7 @@ public class NotePadService {
 	 * @param id
 	 * @return
 	 */
+    @Cacheable(value = "noteCache",key = "#id")
 	public List<NotePad> getNotesById(String id){
 		return myBatisDao.getList2("notePad.selectById",id);
 	}
@@ -39,6 +50,7 @@ public class NotePadService {
 	 * @param str
 	 * @return
 	 */
+    @Cacheable(value = "noteCache1",key = "#str")
 	public List<NotePad> getNotesBystr(String str){
 		return myBatisDao.getList2("notePad.selectByStr",str);
 	}
@@ -55,7 +67,9 @@ public class NotePadService {
 	 * @param notePad
 	 * @return
 	 */
-	public String  insert(NotePad notePad){
+	//@CachePut
+    @CacheEvict(value ="userCache", allEntries=true)
+    public String insert(NotePad notePad){
 		if(notePad.getTitle()!= null){
 			myBatisDao.insert("notePad.insert", notePad);
 			return "true";
@@ -68,6 +82,7 @@ public class NotePadService {
 	 * @param notePad
 	 * @return
 	 */
+    @CacheEvict(value ="userCache", allEntries=true)
 	public String  edit(NotePad notePad){
 		if(notePad.getTitle()!= null){
 			myBatisDao.insert("notePad.update", notePad);
@@ -81,8 +96,10 @@ public class NotePadService {
 	 * @param noteid
 	 * @return
 	 */
+    @CacheEvict(value ="userCache", allEntries=true)
 	public String delete(int noteid){
 		myBatisDao.deleteNote("notePad.delete", noteid);
 		return "true";
 	}
+
 }

@@ -27,7 +27,6 @@ public class RedisTest {
 //        String re = redisCache.hget(key, field);
 //        System.out.println("得到的数据：" + re);
 
-
         NotePad notePad = new NotePad();
         notePad.setId("wangyue");
         notePad.setTitle("123");

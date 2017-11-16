@@ -1,10 +1,16 @@
 package com.bolo.entity;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
 /**
  * 留言回复
  * @author 王越
  * 2016-8-30
  */
-public class Reply {
+@Data
+public class Reply implements Serializable {
 	
 	private int noteid;
 	private String title;

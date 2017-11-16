@@ -32,6 +32,12 @@ public class RedisCacheConfig extends CachingConfigurerSupport  {
     @Autowired
     private volatile JedisConnectionFactory connectionFactory;
 
+    @Bean
+    public RedisTemplate<String, String> redisTemplate(){
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<String, String>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        return redisTemplate;
+    }
 
     @Bean
     public RedisTemplate<String, NotePad> redisTemplateNote(){
@@ -50,7 +56,6 @@ public class RedisCacheConfig extends CachingConfigurerSupport  {
     @Bean
     public CacheManager cacheManager(RedisTemplate<?, ?> redisTemplate) {
         mRedisCacheManager = new RedisCacheManager(redisTemplate);
-        // Number of seconds before expiration. Defaults to unlimited (0)
         mRedisCacheManager.setDefaultExpiration(3000); // Sets the default expire time (in seconds)
         return mRedisCacheManager;
     }

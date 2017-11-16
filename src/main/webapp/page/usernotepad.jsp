@@ -11,7 +11,7 @@
 <style type="text/css">
 
 body {
-	background-image: url();
+	/*background-image: url();*/
 }
 .img-responsive1 {
 	display: inline-block;

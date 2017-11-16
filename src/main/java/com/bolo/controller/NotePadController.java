@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.bolo.redis.RedisCacheUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.redis.cache.RedisCache;
@@ -39,8 +41,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 @Scope
 public class NotePadController {
-	
-	@Autowired
+
+    private static final Logger logger = LoggerFactory.getLogger(NotePadController.class);
+
+
+    @Autowired
 	private NotePadService noteService;
 	@Autowired
 	private ReplyService replyService;
@@ -48,9 +53,6 @@ public class NotePadController {
 	private UserService service;
 	@Autowired
 	private RedisCacheUtil redisCacheUtil;
-
-	private int x;
-
 
     @RequestMapping(value="redis",method = RequestMethod.GET)
     @ResponseBody
@@ -61,7 +63,6 @@ public class NotePadController {
         return  redisCacheUtil.hgetNotePad("123","1").toString();
     }
 
-	
 	/**
 	 * 留言板主页
 	 * @param model
@@ -69,10 +70,7 @@ public class NotePadController {
 	 */
 	@RequestMapping(value="notepad",method = RequestMethod.GET)
 	public String notePad(Model model,HttpServletRequest req,HttpServletResponse resp){
-		HttpSession session = req.getSession();
-		if(req.getCookies()[0].getName().equals("sd")){
-			session.setAttribute("id", req.getCookies()[0].getValue());
-		}
+        SessionAddId(req);
 		model.addAttribute("notelist", noteService.getNotes());
 		return "page/notepad.jsp";
 	}
@@ -93,7 +91,7 @@ public class NotePadController {
         try {
             file.transferTo(targetFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.info("file为空");
         }
 
         if(fileName != null){
@@ -133,10 +131,7 @@ public class NotePadController {
 	 */
 	@RequestMapping(value="shownotepad",method = RequestMethod.GET)
 	public String showPad(Model model,HttpServletRequest req,HttpServletResponse resp){
-		HttpSession session = req.getSession();
-		if(req.getCookies()[0].getName().equals("sd")){
-			session.setAttribute("id", req.getCookies()[0].getValue());
-		}
+        SessionAddId(req);
 		model.addAttribute("notelist", noteService.getNotes());
 		return "page/usernotepad.jsp";
 	}
@@ -193,7 +188,7 @@ public class NotePadController {
 	@ResponseBody
 	public String deleteNote(@RequestParam("noteid") int noteid,HttpServletRequest req,HttpServletResponse resp){
 		HttpSession session = req.getSession();
-		if(((String) session.getAttribute("id"))!=null){
+		if((session.getAttribute("id"))!=null){
 		  String result = noteService.delete(noteid);
 		  return result;
 		}else
@@ -285,5 +280,17 @@ public class NotePadController {
 		resp.addCookie(cookie);
 		return "page/lode.jsp";
 	}
+
+	private void SessionAddId(HttpServletRequest req){
+        HttpSession session = req.getSession();
+        String id = null;
+        for (Cookie cookie : req.getCookies()) {
+            if(cookie.getName().equals("sd")){
+                id = cookie.getValue();
+                break;
+            }
+        }
+        session.setAttribute("id",id);
+    }
 	
 }
