@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -283,6 +284,7 @@ public class UserController1 {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
+    @RequiresAuthentication
 	@RequestMapping(value="retable",method = RequestMethod.GET)
 	public ModelAndView show(HttpServletRequest req,HttpServletResponse resp,ModelMap model){
 		List list=service.getUsers();

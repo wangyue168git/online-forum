@@ -39,6 +39,60 @@
     </bean>
 
 
+    <!--shiro授权管理配置-->
+    <bean id="myAuthorizingRealm" class="com.bolo.controller.MyAuthorizingRealm"/>
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="myAuthorizingRealm"/>
+    </bean>
+
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+
+        <!--shiro 核心安全接口  -->
+        <property name="securityManager" ref="securityManager"></property>
+
+        <!--登录时的连接  -->
+        <!--<property name="loginUrl" value="/lode"></property>-->
+        <!--登录成功之后要跳转的连接  -->
+        <!--<property name="successUrl" value="/note.jsp"></property>-->
+        <!--未授权时跳转的连接  -->
+        <!--<property name="unauthorizedUrl" value="/lode"></property>-->
+        <!--filterChainDefinitions  -->
+        <!--<property name="filterChainDefinitions">-->
+        <!--<value>-->
+        <!--/login/loginForm = anon-->
+        <!--/logout = logout-->
+        <!--/** = authc-->
+        <!--</value>-->
+        <!--</property>-->
+    </bean>
+
+    <!--========================-如果使用注解方式验证将下面代码放开===============================-->
+    <!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
+        <property name="proxyTargetClass" value="true" />
+    </bean>
+
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <!--登录-->
+                <prop key="org.apache.shiro.authz.UnauthenticatedException">
+                    redirect:/lode
+                </prop>
+                <!--授权-->
+                <prop key="org.apache.shiro.authz.UnauthorizedException">
+                    redirect:/admin/common/exceptionLog
+                </prop>
+            </props>
+        </property>
+        <property name="defaultErrorView" value="error/genericView"/>
+    </bean>
+
 
 
 </beans>

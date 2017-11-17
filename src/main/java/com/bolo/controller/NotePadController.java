@@ -2,6 +2,8 @@ package com.bolo.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -132,7 +134,7 @@ public class NotePadController {
 	@RequestMapping(value="shownotepad",method = RequestMethod.GET)
 	public String showPad(Model model,HttpServletRequest req,HttpServletResponse resp){
         SessionAddId(req);
-		model.addAttribute("notelist", noteService.getNotes());
+		model.addAttribute("notelist", NoteListSort(noteService.getNotes()));
 		return "page/usernotepad.jsp";
 	}
 	
@@ -291,6 +293,17 @@ public class NotePadController {
             }
         }
         session.setAttribute("id",id);
+    }
+
+    private  List<NotePad> NoteListSort(List<NotePad> list){
+        Collections.sort(list, new Comparator<NotePad>() {
+            @Override
+            public int compare(NotePad o1, NotePad o2) {
+                return o2.getNoteid() - o1.getNoteid();
+            }
+        });
+
+        return list;
     }
 	
 }
