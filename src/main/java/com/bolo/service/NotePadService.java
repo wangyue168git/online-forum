@@ -2,17 +2,14 @@ package com.bolo.service;
 
 import java.util.List;
 
-import com.bolo.test.CronTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.bolo.entity.NotePad;
-import com.bolo.entity.User;
 import com.bolo.mybatis.MyBatisDao;
 /**
  * 业务层

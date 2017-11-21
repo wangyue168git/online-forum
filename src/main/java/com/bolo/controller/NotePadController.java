@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -13,12 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.bolo.redis.RedisCacheUtil;
+import com.bolo.test.reqlimit.RequestLimit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.data.redis.cache.RedisCache;
-import org.springframework.data.redis.core.RedisTemplate;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -70,10 +69,11 @@ public class NotePadController {
 	 * @param model
 	 * @return
 	 */
+	@RequestLimit(count = 5)
 	@RequestMapping(value="notepad",method = RequestMethod.GET)
-	public String notePad(Model model,HttpServletRequest req,HttpServletResponse resp){
+	public String notePad(HttpServletRequest req,HttpServletResponse resp,Model model){
         SessionAddId(req);
-		model.addAttribute("notelist", noteService.getNotes());
+		model.addAttribute("notelist", NoteListSort(noteService.getNotes()));
 		return "page/notepad.jsp";
 	}
 
@@ -131,6 +131,7 @@ public class NotePadController {
 	 * @param model
 	 * @return
 	 */
+    @RequestLimit(count = 5)
 	@RequestMapping(value="shownotepad",method = RequestMethod.GET)
 	public String showPad(Model model,HttpServletRequest req,HttpServletResponse resp){
         SessionAddId(req);
@@ -282,6 +283,15 @@ public class NotePadController {
 		resp.addCookie(cookie);
 		return "page/lode.jsp";
 	}
+
+    @RequestMapping(value="error",method = RequestMethod.GET)
+	public String error(@RequestParam("name") String name,HttpServletRequest req,HttpServletResponse resp,ModelMap model){
+	    if(name.equals("RequestLimitException")){
+            return "page/limit_erro.jsp";
+        }else {
+            return "page/ex_erro.jsp";
+        }
+    }
 
 	private void SessionAddId(HttpServletRequest req){
         HttpSession session = req.getSession();

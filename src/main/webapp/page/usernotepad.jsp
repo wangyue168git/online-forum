@@ -61,8 +61,11 @@ body {
  </nav> 
 
 
- <h2 class="text-center">我的论坛
+ <h2 class="text-center">
+      Welcome
         <small> 留下你的足迹ba</small>
+         <button type="button"class="btn btn-large btn-success"data-toggle="modal" data-target="#myModal1" >留下我的足迹</button>
+
  </h2>
  <script type="text/javascript">
  function toopen(noteid){
@@ -111,6 +114,7 @@ function replyon(){
  </script>
  
            <div>
+
             <c:forEach items="${notelist}"  var="notePad" >
            <div class="panel panel-primary">
 	       <div class="panel-heading">
@@ -148,11 +152,7 @@ function replyon(){
        </div>
        </c:forEach>
         </div> 
-   <center>       
-    <p>
-      <button type="button"class="btn btn-large btn-success"data-toggle="modal" data-target="#myModal1" >发表新留言</button>
-    </p>
-    </center>
+
     <br>
 <script type="text/javascript">
  function add(){
@@ -167,7 +167,6 @@ function replyon(){
 		   alert("标题不能为空");
 		   return false;      
 	    }else{
-
             var form = new FormData(document.getElementById("upload"));
             $.ajax({
                 cache: true,
@@ -288,13 +287,13 @@ function replyon(){
 		<input type="hidden" class="form-control" id="date" value="" name="date">
 		</div>	
 	</div>
-				<div class="form-group">
-					<label for="lastname"  class="col-sm-2 control-label">上传图片</label>
-					<form action="upload.do" method="post" enctype="multipart/form-data" id="upload">
-						<input type="file" name="file" id = "file"/>
-					</form>
-				</div>
 </form>
+            <div class="form-group">
+                <label for="lastname"  class="col-sm-2 control-label">上传图片</label>
+                <form action="upload.do" method="post" enctype="multipart/form-data" id="upload">
+                    <input type="file" name="file" id = "file"/>
+                </form>
+            </div>
 	<div class="modal-footer">
 			<button type="button" class="btn btn-default" data-dismiss="modal">关闭
 			</button>

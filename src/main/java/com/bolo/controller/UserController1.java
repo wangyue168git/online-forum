@@ -9,7 +9,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -74,7 +73,7 @@ public class UserController1 {
 			return "redirect:/retable";
 		}else{
 		service.delete(id);
-		return "redirect:/retable";
+		return "redirect:/table";
 		}
 	}
 	@RequestMapping(value="setper/{id}",method=RequestMethod.GET)
@@ -87,9 +86,9 @@ public class UserController1 {
 		}else if(user.getPermission().equals("0")){
 		   user.setPermission("-1");
 		   service.edit(user);
-		   return "redirect:/retable";
+		   return "redirect:/table";
 		}else
-		   return "redirect:/retable";
+		   return "redirect:/table";
 	}
 	
 	/**
@@ -259,7 +258,14 @@ public class UserController1 {
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="table",method = RequestMethod.POST)
 	public ModelAndView showDept(@RequestParam("id") String id,HttpServletRequest req,HttpServletResponse resp,ModelMap model){
-		if(!id.equals("")){
+        id = null;
+        for (Cookie cookie : req.getCookies()) {
+            if(cookie.getName().equals("sd")){
+                id = cookie.getValue();
+                break;
+            }
+        }
+		if(id != null){
 		  String permission =  service.getUser(id).getPermission();
 		  if(permission.equals("1")){
 		     List list=service.getUsers();
@@ -271,9 +277,27 @@ public class UserController1 {
 		}else
 		   return  new ModelAndView("page/lode.jsp",model);
     }
+
 	@RequestMapping(value="table",method = RequestMethod.GET)
-	public String showGet(){
-		return "page/lode.jsp";
+	public ModelAndView showGet(HttpServletRequest req, HttpServletResponse resp, ModelMap model){
+        String id = null;
+        for (Cookie cookie : req.getCookies()) {
+            if(cookie.getName().equals("sd")){
+                id = cookie.getValue();
+                break;
+            }
+        }
+        if(id != null){
+            String permission =  service.getUser(id).getPermission();
+            if(permission.equals("1")){
+                List list=service.getUsers();
+                model.addAttribute("list",list);
+                return new ModelAndView("page/table.jsp",model);
+            }else{
+                return  new ModelAndView("page/lode.jsp",model);
+            }
+        }else
+            return new ModelAndView("page/lode.jsp",model);
 	}
 	
 	/**

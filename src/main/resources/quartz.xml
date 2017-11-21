@@ -4,10 +4,10 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
        default-autowire="byName">
 
-    <bean id="cronTaskA" class="com.bolo.test.CronTask">
+    <bean id="cronTaskA" class="com.bolo.test.test01.CronTask">
         <property name="jobContent" value="Task A execute" />
     </bean>
-    <bean id="cronTaskB" class="com.bolo.test.CronTask">
+    <bean id="cronTaskB" class="com.bolo.test.test01.CronTask">
         <property name="jobContent" value="Task B execute" />
     </bean>
 

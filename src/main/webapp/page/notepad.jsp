@@ -62,8 +62,11 @@ body {
      </div> 
  </nav>
 
- <h2 class="text-center">我的论坛
-        <small> 留下你的足迹ba</small>
+ <h2 class="text-center">
+	 Welcome
+	 <small> 留下你的足迹ba</small>
+	 <button type="button"class="btn btn-large btn-success"data-toggle="modal" data-target="#myModal1" >留下我的足迹</button>
+
  </h2>
  <br>
  <script type="text/javascript">
@@ -387,7 +390,7 @@ $('#pageLimit').bootstrapPaginator({
 </script>
     <center>       
     <p>
-      <button type="button"class="btn btn-large btn-success"data-toggle="modal" data-target="#myModal1" >发表新留言</button>
+      <button type="button"class="btn btn-large btn-success"data-toggle="modal" data-target="#myModal1" >留下足迹</button>
     </p>
     </center>
     <br>    

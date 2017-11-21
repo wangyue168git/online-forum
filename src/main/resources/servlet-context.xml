@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" 
-	xmlns:mvc="http://www.springframework.org/schema/mvc" 
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
 	http://www.springframework.org/schema/context 
 	http://www.springframework.org/schema/context/spring-context-3.0.xsd 
 	http://www.springframework.org/schema/mvc 
     http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
     http://www.springframework.org/schema/task
-    http://www.springframework.org/schema/task/spring-task-3.2.xsd">
+    http://www.springframework.org/schema/task/spring-task-3.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
 	<description>Spring-web MVC配置</description>
 	
@@ -18,20 +19,29 @@
 		<context:exclude-filter type="annotation" 
 				expression="org.springframework.stereotype.Service" />
 	</context:component-scan>
-	
+
+    <context:component-scan base-package="com.bolo">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
 	
 	<!-- 当请求应用程序首页时，将执行/lode请求，还可以设定成forward -->
 	<mvc:view-controller path="/" view-name="redirect:/shownotepad" />
 
 	<!-- 这两个类用来启动基于Spring MVC的注解功能，将控制器与方法映射加入到容器中 -->
 	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" /> 
-    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"> 
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
      <property name="messageConverters">
        <list>
         <bean id="UTF8StringHttpMessageConverter" class="com.bolo.controller.UTF8StringHttpMessageConverter"> </bean> 
        </list> 
      </property> 
     </bean>
+    <!-- 启用MVC注解 -->
+    <!--<mvc:annotation-driven/>-->
+
+    <!-- 启动对@AspectJ注解的支持 自定义注解生效 -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
     <!-- 支持上传文件 -->
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
       <property name="defaultEncoding" value="UTF-8"></property>
@@ -46,16 +56,14 @@
     </bean>
 
     <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-
         <!--shiro 核心安全接口  -->
         <property name="securityManager" ref="securityManager"></property>
-
-        <!--登录时的连接  -->
-        <!--<property name="loginUrl" value="/lode"></property>-->
-        <!--登录成功之后要跳转的连接  -->
-        <!--<property name="successUrl" value="/note.jsp"></property>-->
+        <!--登录时的连接-->
+        <property name="loginUrl" value="/show"></property>
+        <!--登录成功之后要跳转的连接-->
+        <!--<property name="successUrl" value="/admin"></property>-->
         <!--未授权时跳转的连接  -->
-        <!--<property name="unauthorizedUrl" value="/lode"></property>-->
+        <property name="unauthorizedUrl" value="/lode"></property>
         <!--filterChainDefinitions  -->
         <!--<property name="filterChainDefinitions">-->
         <!--<value>-->
@@ -77,6 +85,7 @@
     <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
         <property name="securityManager" ref="securityManager"/>
     </bean>
+    <!--异常处理机制-->
     <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
         <property name="exceptionMappings">
             <props>
@@ -88,11 +97,18 @@
                 <prop key="org.apache.shiro.authz.UnauthorizedException">
                     redirect:/admin/common/exceptionLog
                 </prop>
+                <prop key="com.bolo.test.reqlimit.RequestLimitException">
+                    /error?name=RequestLimitException
+                </prop>
+
+
             </props>
         </property>
-        <property name="defaultErrorView" value="error/genericView"/>
+
+        <!-- 定义默认的异常处理页面，当该异常类型的注册时使用 -->
+        <property name="defaultErrorView" value="/error?name=ex"></property>
+        <!-- 定义异常处理页面用来获取异常信息的变量名，默认名为exception -->
+        <property name="exceptionAttribute" value="ex"></property>
     </bean>
-
-
 
 </beans>
