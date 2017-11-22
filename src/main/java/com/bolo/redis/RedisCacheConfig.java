@@ -13,6 +13,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.data.redis.serializer.GenericToStringSerializer;
 
 import java.lang.reflect.Method;
 
@@ -32,21 +33,22 @@ public class RedisCacheConfig extends CachingConfigurerSupport  {
     @Autowired
     private volatile JedisConnectionFactory connectionFactory;
 
-    @Bean
+//    @Bean
     public RedisTemplate<String, String> redisTemplate(){
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<String, String>();
         redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.setValueSerializer(new GenericToStringSerializer<Long>(Long.class));
         return redisTemplate;
     }
 
-    @Bean
+//    @Bean
     public RedisTemplate<String, NotePad> redisTemplateNote(){
         RedisTemplate<String, NotePad> redisTemplate = new RedisTemplate<String, NotePad>();
         redisTemplate.setConnectionFactory(connectionFactory);
         return redisTemplate;
     }
 
-    @Bean
+//    @Bean
     public RedisTemplate<String, User> redisTemplateUser(){
         RedisTemplate<String, User> redisTemplate = new RedisTemplate<String, User>();
         redisTemplate.setConnectionFactory(connectionFactory);

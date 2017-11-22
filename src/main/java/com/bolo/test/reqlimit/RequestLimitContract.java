@@ -2,6 +2,7 @@ package com.bolo.test.reqlimit;
 
 import com.bolo.redis.RedisCacheUtil;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
@@ -24,10 +25,11 @@ public class RequestLimitContract  {
     private static final Logger logger = LoggerFactory.getLogger("RequestLimitContract");
 
     @Autowired
-    private RedisTemplate<String,String> redisTemplate;
+    private RedisTemplate redisTemplate;
     @Autowired
     private RedisCacheUtil redisCacheUtil;
 
+    //在@Controller类里的加了@RequestLimit任意连接点
     @Before("within(@org.springframework.stereotype.Controller *) && @annotation(limit)")
     public void requestLimit(final JoinPoint joinPoint,RequestLimit limit) throws RequestLimitException {
         try{
@@ -45,6 +47,15 @@ public class RequestLimitContract  {
             String ip = HttpRequestUtil.getIpAddress(request);
             String url = request.getRequestURL().toString();
             String key = "req_limit_".concat(url).concat(ip);
+            String key_ip = "req_limit_ip".concat(ip);
+
+            long limit_ip = !redisTemplate.boundValueOps(key_ip).get(0,-1).equals("") ?
+                    Long.valueOf(redisTemplate.boundValueOps(key_ip).get(0,-1)) : 0;
+            if (limit_ip > 20) {
+                throw new RequestLimitException("该ip已被锁");
+            }
+
+
 
             //redis设置自增1
             long count = redisTemplate.opsForValue().increment(key,1);
@@ -52,6 +63,13 @@ public class RequestLimitContract  {
                 redisTemplate.expire(key,limit.time(), TimeUnit.MILLISECONDS);
             }
             if(count > limit.count()){
+
+                long count_ip = redisTemplate.opsForValue().increment(key_ip,1);
+                if(count_ip == 10){
+                    redisTemplate.expire(key_ip,60000*60*2,TimeUnit.MILLISECONDS);
+                    throw new RequestLimitException("该ip已被锁");
+                }
+
                 logger.info("用户IP[" + ip + "]访问地址[" + url + "]超过了限定的次数[" + limit.count() + "]");
                 throw  new RequestLimitException();
             }

@@ -19,25 +19,18 @@ public class RedisCacheUtil {
     @Resource
     private RedisTemplate redisTemplate;
 
-    @Autowired
-    private RedisTemplate<String, NotePad> redisTemplateByNote;
-
-    @Autowired
-    private RedisTemplate<String, User> redisTemplateByUser;
-
-
     public NotePad hgetNotePad(String key, String field){
         if(key == null || "".equals(key)){
             return null;
         }
-        return (NotePad) redisTemplateByNote.opsForHash().get(key, field);
+        return (NotePad) redisTemplate.opsForHash().get(key, field);
     }
 
     public void hsetNotePad(String key, String field, NotePad value) {
         if(key == null || "".equals(key)){
             return ;
         }
-        redisTemplateByNote.opsForHash().put(key, field, value);
+        redisTemplate.opsForHash().put(key, field, value);
     }
 
 

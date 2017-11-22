@@ -86,29 +86,32 @@
         <property name="securityManager" ref="securityManager"/>
     </bean>
     <!--异常处理机制-->
-    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
-        <property name="exceptionMappings">
-            <props>
-                <!--登录-->
-                <prop key="org.apache.shiro.authz.UnauthenticatedException">
-                    redirect:/lode
-                </prop>
-                <!--授权-->
-                <prop key="org.apache.shiro.authz.UnauthorizedException">
-                    redirect:/admin/common/exceptionLog
-                </prop>
-                <prop key="com.bolo.test.reqlimit.RequestLimitException">
-                    /error?name=RequestLimitException
-                </prop>
+    <!--第一种-->
+    <bean id="exceptionHandler" class="com.bolo.test.excepresoler.MyExceptionHandler"/>
+    <!--第二种-->
+    <!--<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">-->
+        <!--<property name="exceptionMappings">-->
+            <!--<props>-->
+                <!--&lt;!&ndash;登录&ndash;&gt;-->
+                <!--<prop key="org.apache.shiro.authz.UnauthenticatedException">-->
+                    <!--redirect:/lode-->
+                <!--</prop>-->
+                <!--&lt;!&ndash;授权&ndash;&gt;-->
+                <!--<prop key="org.apache.shiro.authz.UnauthorizedException">-->
+                    <!--redirect:/admin/common/exceptionLog-->
+                <!--</prop>-->
+                <!--<prop key="com.bolo.test.reqlimit.RequestLimitException">-->
+                    <!--/error?name=RequestLimitException-->
+                <!--</prop>-->
 
 
-            </props>
-        </property>
+            <!--</props>-->
+        <!--</property>-->
 
-        <!-- 定义默认的异常处理页面，当该异常类型的注册时使用 -->
-        <property name="defaultErrorView" value="/error?name=ex"></property>
-        <!-- 定义异常处理页面用来获取异常信息的变量名，默认名为exception -->
-        <property name="exceptionAttribute" value="ex"></property>
-    </bean>
+        <!--&lt;!&ndash; 定义默认的异常处理页面，当该异常类型的注册时使用 &ndash;&gt;-->
+        <!--<property name="defaultErrorView" value="/error?name=ex"></property>-->
+        <!--&lt;!&ndash; 定义异常处理页面用来获取异常信息的变量名，默认名为exception &ndash;&gt;-->
+        <!--<property name="exceptionAttribute" value="ex"></property>-->
+    <!--</bean>-->
 
 </beans>
