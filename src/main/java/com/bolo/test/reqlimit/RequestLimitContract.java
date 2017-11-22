@@ -65,8 +65,9 @@ public class RequestLimitContract  {
             if(count > limit.count()){
 
                 long count_ip = redisTemplate.opsForValue().increment(key_ip,1);
-                if(count_ip == 10){
+                if(count_ip == 20){
                     redisTemplate.expire(key_ip,60000*60*2,TimeUnit.MILLISECONDS);
+                    Thread.sleep(60000);
                     throw new RequestLimitException("该ip已被锁");
                 }
 

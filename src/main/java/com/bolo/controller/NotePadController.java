@@ -69,8 +69,19 @@ public class NotePadController {
 	@RequestMapping(value="notepad",method = RequestMethod.GET)
 	public String notePad(HttpServletRequest req,HttpServletResponse resp,Model model){
         SessionAddId(req);
-		model.addAttribute("notelist", NoteListSort(noteService.getNotes()));
-		return "page/notepad.jsp";
+        String id = (String) req.getSession().getAttribute("id");
+        if(id != null){
+            String permission =  service.getUser(id).getPermission();
+            if(permission.equals("1")){
+                model.addAttribute("notelist", NoteListSort(noteService.getNotes()));
+                return "page/notepad.jsp";
+            }else{
+                return  "page/auth_erro.jsp";
+            }
+        }else {
+            return  "redirect:lode";
+        }
+
 	}
 
 	@RequestMapping(value="upload.do",method = RequestMethod.POST)
@@ -293,13 +304,15 @@ public class NotePadController {
 	private void SessionAddId(HttpServletRequest req){
         HttpSession session = req.getSession();
         String id = null;
-        for (Cookie cookie : req.getCookies()) {
-            if(cookie.getName().equals("sd")){
-                id = cookie.getValue();
-                break;
+        if(req.getCookies() != null) {
+            for (Cookie cookie : req.getCookies()) {
+                if (cookie.getName().equals("sd")) {
+                    id = cookie.getValue();
+                    break;
+                }
             }
         }
-        session.setAttribute("id",id);
+        session.setAttribute("id", id);
     }
 
     private  List<NotePad> NoteListSort(List<NotePad> list){

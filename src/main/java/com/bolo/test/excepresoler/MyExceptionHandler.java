@@ -19,8 +19,10 @@ public class MyExceptionHandler implements HandlerExceptionResolver {
 
     @Override
     public ModelAndView resolveException(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) {
+
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("ex", e);
+
         // 根据不同错误转向不同页面
         if(e instanceof RequestLimitException) {
             if(e.getMessage().equals("该ip已被锁")){
