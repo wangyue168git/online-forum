@@ -4,11 +4,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
        default-autowire="byName">
 
-    <bean id="cronTaskA" class="com.bolo.test.test01.CronTask">
-        <property name="jobContent" value="Task A execute" />
-    </bean>
-    <bean id="cronTaskB" class="com.bolo.test.test01.CronTask">
-        <property name="jobContent" value="Task B execute" />
+    <bean id="cronTaskA" class="com.bolo.test.crontasks.CronTask">
+        <property name="jobContent" value="--更新权限缓存表--" />
     </bean>
 
     <bean id="jobDetailA"
@@ -18,35 +15,20 @@
         <property name="concurrent" value="false" />
     </bean>
 
-    <bean id="jobDetailB"
-          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="targetObject" ref="cronTaskB" />
-        <property name="targetMethod" value="run" />
-        <property name="concurrent" value="false" />
-    </bean>
-
-    <bean id="cronTriggerA" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <!-- ============= 调度触发器 ============= -->
+    <bean id="cronTriggerA" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <!-- jobDetail -->
         <property name="jobDetail" ref="jobDetailA" />
-
         <!-- execute per second -->
-        <property name="cronExpression" value="0/5 * * * * ?" />
-    </bean>
-
-    <bean id="cronTriggerB" class="org.springframework.scheduling.quartz.CronTriggerBean">
-        <!-- jobDetail -->
-        <property name="jobDetail" ref="jobDetailB" />
-
-        <!-- execute per second -->
-        <property name="cronExpression" value="0/5 * * * * ?" />
+        <property name="cronExpression" value="0 */30 * * * ?" />
     </bean>
 
     <bean id="schedulerFactory"
-          class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+          class="org.springframework.scheduling.quartz.SchedulerFactoryBean" autowire="no">
         <property name="triggers">
             <list>
                 <ref bean="cronTriggerA" />
-                <ref bean="cronTriggerB" />
+                <!--<ref bean="cronTriggerB" />-->
             </list>
         </property>
     </bean>

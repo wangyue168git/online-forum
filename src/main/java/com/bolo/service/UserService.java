@@ -3,6 +3,8 @@ package com.bolo.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.bolo.entity.User;
 import com.bolo.mybatis.MyBatisDao;
@@ -29,6 +31,7 @@ public class UserService {
 	 * 获得用户
 	 * @return
 	 */
+    @Cacheable(value = "userinfoCache",keyGenerator = "customKeyGenerator")
 	public List<User> getUsers(){
 		return myBatisDao.getList("userMapper.selectByEntity");
 	}
@@ -44,6 +47,7 @@ public class UserService {
 	 * 添加用户
 	 * @param user
 	 */
+    @CacheEvict(value ="userinfoCache", allEntries=true)
 	public void  insert(User user){
 		if(user.getId()!= null)
 			myBatisDao.insert("userMapper.insert", user);
@@ -52,6 +56,7 @@ public class UserService {
 	 * 修改用户信息
 	 * @param user
 	 */
+    @CacheEvict(value ="userinfoCache", allEntries=true)
 	public void  edit(User user){
 		myBatisDao.insert("userMapper.update", user);
 	}
@@ -59,6 +64,7 @@ public class UserService {
 	 * 删除用户
 	 * @param id
 	 */
+    @CacheEvict(value ="userinfoCache", allEntries=true)
 	public void delete(String id){
 		myBatisDao.delete("userMapper.delete", id);
 	}

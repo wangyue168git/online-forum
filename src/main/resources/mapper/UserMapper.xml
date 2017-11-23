@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="userMapper">
 
-	<sql id="base_column">
+	<sql id="base_column_1">
 	     password
 	</sql>
      <select id="selectByEntity" parameterType="user" resultType="user">
@@ -17,7 +17,7 @@
 	</select>
 	<select id="selectByPrimaryKey" parameterType="String" resultType="String">
 		select 
-		<include refid="base_column" />
+		<include refid="base_column_1" />
 		from lode where id = #{id}
 	</select>
 	<insert id="insert" parameterType="user">

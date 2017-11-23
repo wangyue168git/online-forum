@@ -12,11 +12,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.bolo.redis.RedisCacheUtil;
+import com.bolo.test.auther.AuthManage;
 import com.bolo.test.reqlimit.RequestLimit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -51,7 +54,8 @@ public class NotePadController {
 	@Autowired
 	private RedisCacheUtil redisCacheUtil;
 
-    @RequestMapping(value="redis",method = RequestMethod.GET)
+	@AuthManage("manager")
+    @RequestMapping(value="test",method = RequestMethod.GET)
     @ResponseBody
     public String hashset(HttpServletRequest req, HttpServletResponse resp,ModelMap model){
         NotePad notePad = new NotePad();
@@ -65,23 +69,12 @@ public class NotePadController {
 	 * @param model
 	 * @return
 	 */
+    @AuthManage("manager")
 	@RequestLimit(count = 5)
 	@RequestMapping(value="notepad",method = RequestMethod.GET)
 	public String notePad(HttpServletRequest req,HttpServletResponse resp,Model model){
-        SessionAddId(req);
-        String id = (String) req.getSession().getAttribute("id");
-        if(id != null){
-            String permission =  service.getUser(id).getPermission();
-            if(permission.equals("1")){
-                model.addAttribute("notelist", NoteListSort(noteService.getNotes()));
-                return "page/notepad.jsp";
-            }else{
-                return  "page/auth_erro.jsp";
-            }
-        }else {
-            return  "redirect:lode";
-        }
-
+        model.addAttribute("notelist", NoteListSort(noteService.getNotes()));
+        return "page/notepad.jsp";
 	}
 
 	@RequestMapping(value="upload.do",method = RequestMethod.POST)
@@ -122,14 +115,15 @@ public class NotePadController {
 	 * @param model
 	 * @return
 	 */
+	@AuthManage
 	@RequestMapping(value="search",method = RequestMethod.GET)
-	public String searchnotePad(@RequestParam("search") String str,Model model){
+	public String searchnotePad(@RequestParam("search") String str,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		model.addAttribute("notelist", noteService.getNotesBystr("%"+str+"%"));
 		return "page/notepad.jsp";
 	}
-	
+	@AuthManage
 	@RequestMapping(value="search1",method = RequestMethod.GET)
-	public String searchnotePad1(@RequestParam("search") String str,Model model){
+	public String searchnotePad1(@RequestParam("search") String str,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		model.addAttribute("notelist", noteService.getNotesBystr("%"+str+"%"));
 		return "page/usernotepad.jsp";
 	}
@@ -170,7 +164,7 @@ public class NotePadController {
         }
 		session.setAttribute("lastNotePad",notePad);
 		notePad.setFilename((String)session.getAttribute("lastFileName"));
-		if(service.getUser(id).getPermission().equals("-1")){
+		if(redisCacheUtil.hgetUserAuth("userAuths",id).equals("-1")){
 			return "stop";
 		}else{
 		    return noteService.insert(notePad);
@@ -181,9 +175,10 @@ public class NotePadController {
 	 * @param notePad
 	 * @return
 	 */
+	@AuthManage
 	@RequestMapping(value="updatenote",method = RequestMethod.POST)
 	@ResponseBody
-	public String updateNote(NotePad notePad){
+	public String updateNote(NotePad notePad,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		 String result = noteService.edit(notePad);
 		 return result;
 	}
@@ -194,6 +189,7 @@ public class NotePadController {
 	 * @param resp
 	 * @return
 	 */
+	@AuthManage("manager")
 	@RequestMapping(value="deletenote",method = RequestMethod.GET)
 	@ResponseBody
 	public String deleteNote(@RequestParam("noteid") int noteid,HttpServletRequest req,HttpServletResponse resp){
@@ -209,9 +205,10 @@ public class NotePadController {
 	 * @param noteid
 	 * @return
 	 */
+	@AuthManage
 	@RequestMapping(value="deleteusernote",method = RequestMethod.GET)
 	@ResponseBody
-	public String deleteUserNote(@RequestParam("noteid") int noteid){
+	public String deleteUserNote(@RequestParam("noteid") int noteid,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		String result = noteService.delete(noteid);
 		return result;
 	}
@@ -291,7 +288,14 @@ public class NotePadController {
 		return "page/lode.jsp";
 	}
 
-
+    /**
+     * 统一异常处理机制，灵活性不高，所以暂时不用
+     * @param name
+     * @param req
+     * @param resp
+     * @param model
+     * @return
+     */
     @RequestMapping(value="error",method = RequestMethod.GET)
 	public String error(@RequestParam("name") String name,HttpServletRequest req,HttpServletResponse resp,ModelMap model){
 	    if(name.equals("RequestLimitException")){
@@ -322,7 +326,6 @@ public class NotePadController {
                 return o2.getNoteid() - o1.getNoteid();
             }
         });
-
         return list;
     }
 	

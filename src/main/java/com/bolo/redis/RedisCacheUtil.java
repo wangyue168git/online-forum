@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author wangyue
@@ -18,6 +19,21 @@ public class RedisCacheUtil {
 
     @Resource
     private RedisTemplate redisTemplate;
+
+
+    public String hgetUserAuth(String key, String field){
+        if(key == null || "".equals(key)){
+            return null;
+        }
+        return (String) redisTemplate.opsForHash().get(key, field);
+    }
+
+    public void hsetUserAuth(String key, String field, String value) {
+        if(key == null || "".equals(key)){
+            return ;
+        }
+        redisTemplate.opsForHash().put(key, field, value);
+    }
 
     public NotePad hgetNotePad(String key, String field){
         if(key == null || "".equals(key)){
@@ -33,6 +49,9 @@ public class RedisCacheUtil {
         redisTemplate.opsForHash().put(key, field, value);
     }
 
+    public void setExpire(String key,int time){
+        redisTemplate.expire(key,time, TimeUnit.MILLISECONDS);
+    }
 
     /**
      * 向Hash中添加值

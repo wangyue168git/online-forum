@@ -1,5 +1,6 @@
 package com.bolo.test.excepresoler;
 
+import com.bolo.test.auther.AuthException;
 import com.bolo.test.reqlimit.RequestLimitException;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -32,6 +33,12 @@ public class MyExceptionHandler implements HandlerExceptionResolver {
             }
         }else if(e instanceof UnauthenticatedException) {
             return new ModelAndView("redirect:/lode", model);
+        }else if(e instanceof AuthException){
+            if(e.getMessage().equals("未登录用户")){
+                return new ModelAndView("redirect:/lode", model);
+            }else {
+                return new ModelAndView("page/auth_erro.jsp", model);
+            }
         } else {
             return new ModelAndView("page/ex_erro.jsp", model);
         }

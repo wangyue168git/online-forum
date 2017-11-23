@@ -1,6 +1,6 @@
 package com.bolo.test.reqlimit;
 
-import org.springframework.core.Ordered;
+
 import org.springframework.core.annotation.Order;
 
 import java.lang.annotation.*;
@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-@Order(Ordered.HIGHEST_PRECEDENCE)//最高优先级
+@Order(2147483647-1)//第二优先级
 public @interface RequestLimit {
 
     /**

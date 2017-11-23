@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.bolo.test.auther.AuthManage;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -67,8 +68,9 @@ public class UserController1 {
 	 * @param id 用户名
 	 * @return  跳转到表单界面
 	 */
+	@AuthManage("manager")
 	@RequestMapping(value="delete/{name}",method=RequestMethod.GET)
-	public String delete(@PathVariable("name") String id){
+	public String delete(@PathVariable("name") String id,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		if(service.getUser(id).getPermission().equals("1")){
 			return "redirect:/retable";
 		}else{
@@ -76,13 +78,15 @@ public class UserController1 {
 		return "redirect:/table";
 		}
 	}
+
+	@AuthManage
 	@RequestMapping(value="setper/{id}",method=RequestMethod.GET)
-	public String setper(@PathVariable("id") String id){
+	public String setper(@PathVariable("id") String id,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		User user  = service.getUser(id);
 		if(user.getPermission().equals("-1")){
 			user.setPermission("0");
 			service.edit(user);
-			return "redirect:/retable";
+			return "redirect:/table";
 		}else if(user.getPermission().equals("0")){
 		   user.setPermission("-1");
 		   service.edit(user);
@@ -97,14 +101,16 @@ public class UserController1 {
 	 * @param model 模块，传参
 	 * @return
 	 */
+    @AuthManage("manager")
 	@RequestMapping(value="edit/{id}",method=RequestMethod.GET)
-	public String edit(@PathVariable("id") String id,ModelMap model){
+	public String edit(@PathVariable("id") String id,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		model.addAttribute("user", service.getUser(id));       //可以用来在页面上下文之间传递参数
 		return "forward:/page/edit.jsp";
 	}
-	
+
+    @AuthManage
 	@RequestMapping(value="edituser/{id}",method=RequestMethod.GET)
-	public String editUser(@PathVariable("id") String id,ModelMap model){
+	public String editUser(@PathVariable("id") String id,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		model.addAttribute("user", service.getUser(id));       //可以用来在页面上下文之间传递参数
 		return "forward:/page/edituser.jsp";
 	}
@@ -154,14 +160,16 @@ public class UserController1 {
 	 * @param model 
 	 * @return  返回表单页面
 	 */
+    @AuthManage("manager")
 	@RequestMapping(value="edit/update",method = RequestMethod.POST)
-	public String update(User user,Model model){
+	public String update(User user,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		service.edit(user);
 		return "redirect:/retable";
 	}
-	
+
+    @AuthManage
 	@RequestMapping(value="edituser/update",method = RequestMethod.POST)
-	public String updateUser(User user,Model model){
+	public String updateUser(User user,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		service.edit(user);
 		return "redirect:/notepad";
 	}
@@ -255,49 +263,19 @@ public class UserController1 {
 	 * @param model 存储表单List
 	 * @return
 	 */
+    @AuthManage("manager")
 	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="table",method = RequestMethod.POST)
 	public ModelAndView showDept(@RequestParam("id") String id,HttpServletRequest req,HttpServletResponse resp,ModelMap model){
-        id = null;
-        for (Cookie cookie : req.getCookies()) {
-            if(cookie.getName().equals("sd")){
-                id = cookie.getValue();
-                break;
-            }
-        }
-		if(id != null){
-		  String permission =  service.getUser(id).getPermission();
-		  if(permission.equals("1")){
-		     List list=service.getUsers();
-		     model.addAttribute("list",list);
-		     return new ModelAndView("page/table.jsp",model);
-		  }else{
-			 return  new ModelAndView("page/lode.jsp",model);
-		  }
-		}else
-		   return  new ModelAndView("page/lode.jsp",model);
+        model.addAttribute("list",service.getUsers());
+        return new ModelAndView("page/table.jsp",model);
     }
 
+    @AuthManage("manager")
 	@RequestMapping(value="table",method = RequestMethod.GET)
 	public ModelAndView showGet(HttpServletRequest req, HttpServletResponse resp, ModelMap model){
-        String id = null;
-        for (Cookie cookie : req.getCookies()) {
-            if(cookie.getName().equals("sd")){
-                id = cookie.getValue();
-                break;
-            }
-        }
-        if(id != null){
-            String permission =  service.getUser(id).getPermission();
-            if(permission.equals("1")){
-                List list=service.getUsers();
-                model.addAttribute("list",list);
-                return new ModelAndView("page/table.jsp",model);
-            }else{
-                return  new ModelAndView("page/lode.jsp",model);
-            }
-        }else
-            return new ModelAndView("page/lode.jsp",model);
+        model.addAttribute("list",service.getUsers());
+        return new ModelAndView("page/table.jsp",model);
 	}
 	
 	/**
