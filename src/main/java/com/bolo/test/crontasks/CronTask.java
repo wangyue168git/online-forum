@@ -26,7 +26,8 @@ import java.util.Map;
  * @Date 20:35
  */
 @Slf4j
-@Component //Bean
+@Configuration //Beans配置
+@Component //Scheduling Bean注入
 @EnableAsync
 @EnableScheduling //开启任务调度
 public class CronTask {
@@ -47,7 +48,7 @@ public class CronTask {
             userAuths.put(user.getId(),user.getPermission());
             redisCacheUtil.hsetUserAuth("userAuths",user.getId(),user.getPermission());
         }
-        redisCacheUtil.setExpire("userAuths",60000*60);
+        redisCacheUtil.setExpire("userAuths",(long)60000*60);
 
         if(logger.isInfoEnabled()){
             logger.info(jobContent + "{}","····");

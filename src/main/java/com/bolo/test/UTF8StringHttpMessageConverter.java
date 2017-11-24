@@ -1,4 +1,4 @@
-package com.bolo.controller;
+package com.bolo.test;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;

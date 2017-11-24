@@ -1,4 +1,4 @@
-package com.bolo.controller;
+package com.bolo.test;
 
 import com.bolo.service.UserService;
 import org.apache.shiro.authc.AuthenticationException;

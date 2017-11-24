@@ -94,10 +94,10 @@
 		<url-pattern>*.do</url-pattern>
 	</servlet-mapping>
     <!--异常拦截-->
-    <!--<error-page>-->
-        <!--&lt;!&ndash;<error-code>404</error-code>&ndash;&gt;-->
+    <error-page>
+        <error-code>404</error-code>
         <!--<exception-type>java.lang.reflect.UndeclaredThrowableException</exception-type>-->
-        <!--<location>/page/limit_erro.jsp</location>-->
-    <!--</error-page>-->
+        <location>/page/404.jsp</location>
+    </error-page>
 
 </web-app>

@@ -41,7 +41,7 @@
                    </list>
                </property>
            </bean>
-        <!--<bean id="UTF8StringHttpMessageConverter" class="com.bolo.controller.UTF8StringHttpMessageConverter"> </bean> -->
+        <!--<bean id="UTF8StringHttpMessageConverter" class="com.bolo.test.UTF8StringHttpMessageConverter"> </bean> -->
        </list> 
      </property> 
     </bean>
@@ -59,7 +59,7 @@
 
 
     <!--shiro授权管理配置-->
-    <bean id="myAuthorizingRealm" class="com.bolo.controller.MyAuthorizingRealm"/>
+    <bean id="myAuthorizingRealm" class="com.bolo.test.MyAuthorizingRealm"/>
     <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
         <property name="realm" ref="myAuthorizingRealm"/>
     </bean>

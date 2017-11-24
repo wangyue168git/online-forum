@@ -49,7 +49,26 @@ public class RedisCacheUtil {
         redisTemplate.opsForHash().put(key, field, value);
     }
 
-    public void setExpire(String key,int time){
+    public User hgetUser(String key, String field){
+        if(key == null || "".equals(key)){
+            return null;
+        }
+        return (User) redisTemplate.opsForHash().get(key, field);
+    }
+
+    public void hsetUser(String key, String field, User value) {
+        if(key == null || "".equals(key)){
+            return ;
+        }
+        redisTemplate.opsForHash().put(key, field, value);
+    }
+
+    /**
+     * 设置key生命周期
+     * @param key
+     * @param time
+     */
+    public void setExpire(String key,long time){
         redisTemplate.expire(key,time, TimeUnit.MILLISECONDS);
     }
 
@@ -114,5 +133,26 @@ public class RedisCacheUtil {
             return;
         }
         redisTemplate.opsForHash().delete(key, field);
+    }
+
+    /**
+     * 设置key-value自增
+     * @param key
+     * @param i
+     * @return 返回增加后的值
+     */
+    public Long increment(String key,int i){
+        return redisTemplate.opsForValue().increment(key,i);
+    }
+
+    /**
+     * 根据范围返回字符串
+     * @param key
+     * @param var1
+     * @param var3
+     * @return
+     */
+    public String getBoundValue(String key,long var1, long var3){
+        return redisTemplate.boundValueOps(key).get(var1,var3);
     }
 }

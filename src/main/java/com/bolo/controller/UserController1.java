@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.bolo.redis.RedisCacheUtil;
 import com.bolo.test.auther.AuthManage;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +36,8 @@ public class UserController1 {
 	
 	@Autowired
 	private UserService service;
-	
 	@Autowired
-	private NotePadService noteService;
+	private RedisCacheUtil redisCacheUtil;
 	
 	/**
 	 * 登录界面
@@ -97,7 +97,7 @@ public class UserController1 {
 	
 	/**
 	 * 跳转修改密码界面
-	 * @param name1  用户名
+	 * @param id  用户名
 	 * @param model 模块，传参
 	 * @return
 	 */
@@ -118,36 +118,28 @@ public class UserController1 {
 	
 	/**
 	 * 登录用户判断
-	 * @param name  用户名
+	 * @param id  用户名
 	 * @param password  密码
-	 * @param model 
 	 * @return  正确则跳转到显示页面，否则跳转到erro界面
 	 */
 	@RequestMapping(value="show",method = RequestMethod.POST)
 	public String lode(@RequestParam("name") String id,@RequestParam("password") String password,HttpServletRequest req,HttpServletResponse resp){
-		if(service.getUser(id)!=null){
-			String password1 = service.getUser(id).getPassword();
-			String permission = service.getUser(id).getPermission();
-		if(password.equals(password1)){
-		    Cookie cookie = new Cookie("sd",id);
-		    //Cookie cookie1 = new Cookie("JSESSIONID",id);
-		    //cookie1.setMaxAge(60*60);
-		    cookie.setMaxAge(60*60);
-		    resp.addCookie(cookie);
-		    //resp.addCookie(cookie1);
-		    //resp.setStatus(200);
-
-			HttpSession session = req.getSession();
-			session.setAttribute("id", id);
-			if(permission.equals("1")){
-				return "page/admin.jsp";
-			}else{
-			    return "redirect:/shownotepad";
-			}
-		}
-		else{
-			return "page/erro.jsp";
-		}
+		User user = service.getUser(id);
+	    if(user!=null){
+		    if(password.equals(user.getPassword())){
+		        Cookie cookie = new Cookie("sd",id);
+		        cookie.setMaxAge(60*60);
+		        resp.addCookie(cookie);
+			    HttpSession session = req.getSession();
+			    session.setAttribute("id", id);
+			        if(user.getPermission().equals("1")){
+				        return "page/admin.jsp";
+			        }else{
+			            return "redirect:/shownotepad";
+			    }
+		    } else{
+			    return "page/erro.jsp";
+		    }
 		}else{
 			return "page/erro.jsp";
 		}
@@ -155,8 +147,7 @@ public class UserController1 {
 	
 	/**
 	 * 保存修改后的密码
-	 * @param name 用户名
-	 * @param password  密码
+	 * @param user 用户
 	 * @param model 
 	 * @return  返回表单页面
 	 */
@@ -185,9 +176,7 @@ public class UserController1 {
 	
 	/**
 	 * 用户注册
-	 * @param name  用户名
-	 * @param password  密码
-	 * @param model
+	 * @param user  用户
 	 * @return  跳转到登陆界面
 	 */
 	@RequestMapping(value="register",method = RequestMethod.POST)
