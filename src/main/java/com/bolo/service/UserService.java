@@ -8,6 +8,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.bolo.entity.User;
 import com.bolo.mybatis.MyBatisDao;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * 业务层
  * @author 王越
@@ -31,6 +36,7 @@ public class UserService {
 	 * 获得用户
 	 * @return
 	 */
+	@Transactional(readOnly = true,isolation = Isolation.READ_COMMITTED)
     @Cacheable(value = "userinfoCache",keyGenerator = "customKeyGenerator")
 	public List<User> getUsers(){
 		return myBatisDao.getList("userMapper.selectByEntity");
@@ -47,6 +53,7 @@ public class UserService {
 	 * 添加用户
 	 * @param user
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
     @CacheEvict(value ="userinfoCache", allEntries=true)
 	public void  insert(User user){
 		if(user.getId()!= null)
@@ -64,6 +71,7 @@ public class UserService {
 	 * 删除用户
 	 * @param id
 	 */
+    @Transactional(propagation = Propagation.REQUIRED)
     @CacheEvict(value ="userinfoCache", allEntries=true)
 	public void delete(String id){
 		myBatisDao.delete("userMapper.delete", id);

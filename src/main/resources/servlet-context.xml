@@ -3,6 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
 	http://www.springframework.org/schema/context 
@@ -10,7 +11,7 @@
 	http://www.springframework.org/schema/mvc 
     http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
     http://www.springframework.org/schema/task
-    http://www.springframework.org/schema/task/spring-task-3.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    http://www.springframework.org/schema/task/spring-task-3.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<description>Spring-web MVC配置</description>
 	
@@ -41,7 +42,7 @@
                    </list>
                </property>
            </bean>
-        <!--<bean id="UTF8StringHttpMessageConverter" class="com.bolo.test.UTF8StringHttpMessageConverter"> </bean> -->
+        <!--<bean id="UTF8StringHttpMessageConverter" class="com.bolo.test.test01.UTF8StringHttpMessageConverter"> </bean> -->
        </list> 
      </property> 
     </bean>
@@ -59,7 +60,7 @@
 
 
     <!--shiro授权管理配置-->
-    <bean id="myAuthorizingRealm" class="com.bolo.test.MyAuthorizingRealm"/>
+    <bean id="myAuthorizingRealm" class="com.bolo.test.test01.MyAuthorizingRealm"/>
     <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
         <property name="realm" ref="myAuthorizingRealm"/>
     </bean>
@@ -121,4 +122,52 @@
     <!--</bean>-->
     <!--定时任务-->
     <!--<import resource="quartz.xml"/>-->
+
+
+    <bean id="tcpServer" class= "com.bolo.test.nettys.NettyTCPServer" destroy-method="stopServer">
+        <constructor-arg ref="tcpConfig" />
+        <constructor-arg ref="myChannelInitializer" />
+    </bean>
+
+    <bean id="myChannelInitializer" class="com.bolo.test.nettys.MyChannelInitializer"/>
+
+    <bean id="tcpConfig" class="com.bolo.test.nettys.NettyConfig">
+        <property name="channelOptions" ref="tcpChannelOptions"/>
+        <property name="bossGroup" ref="bossGroup"/>
+        <property name="workerGroup" ref="workerGroup"/>
+        <property name="portNumber" value="10086"/>
+    </bean>
+
+    <util:map id="tcpChannelOptions" map-class="java.util.HashMap">
+        <entry>
+            <key><util:constant static-field="io.netty.channel.ChannelOption.SO_KEEPALIVE"/></key>
+            <value type="java.lang.Boolean">true</value>
+        </entry>
+        <entry>
+            <key><util:constant static-field="io.netty.channel.ChannelOption.SO_BACKLOG"/></key>
+            <value type="java.lang.Integer">100</value>
+        </entry>
+    </util:map>
+
+    <bean id="bossGroup" class="io.netty.channel.nio.NioEventLoopGroup" destroy-method="shutdownGracefully">
+        <constructor-arg type="int" index="0" value="2" />
+        <constructor-arg index="1" ref="bossThreadFactory" />
+    </bean>
+
+    <bean id="workerGroup" class="io.netty.channel.nio.NioEventLoopGroup" destroy-method="shutdownGracefully">
+        <constructor-arg type="int" index="0"
+                         value="8" />
+        <constructor-arg index="1" ref="workerThreadFactory" />
+    </bean>
+
+    <bean id="bossThreadFactory" class="com.bolo.test.nettys.NamedThreadFactory">
+        <constructor-arg type="java.lang.String" value="Server-Boss" />
+    </bean>
+
+    <bean id="workerThreadFactory" class="com.bolo.test.nettys.NamedThreadFactory">
+        <constructor-arg type="java.lang.String" index="0" value="Server-Worker" />
+    </bean>
+    <task:annotation-driven scheduler="taskScheduler"/>
+    <task:scheduler id="taskScheduler" pool-size="1"/>
+
 </beans>

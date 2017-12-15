@@ -61,13 +61,23 @@
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 
+    <!--注解实现事务管理-->
+    <tx:annotation-driven transaction-manager="transactionManager" />
 	<aop:config proxy-target-class="true">
 		<aop:advisor pointcut="execution(* com.bolo.examples..*Manager.*(..))" advice-ref="txAdvice" />
 	</aop:config>
-
+    <!--声明实现事务管理-->
 	<tx:advice id="txAdvice" transaction-manager="transactionManager">
 		<tx:attributes>
-			<tx:method name="get*" read-only="true" />
+            <tx:method name="delete*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException" />
+            <tx:method name="insert*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.RuntimeException" />
+            <tx:method name="update*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.Exception" />
+            <tx:method name="find*" propagation="SUPPORTS" />
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="select*" propagation="SUPPORTS" />
 		</tx:attributes>
 	</tx:advice>
 

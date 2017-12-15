@@ -13,6 +13,8 @@ import javax.servlet.http.HttpSession;
 
 import com.bolo.redis.RedisCacheUtil;
 import com.bolo.test.auther.AuthManage;
+import com.bolo.test.nettys.NettyTCPServer;
+import com.bolo.test.nettys.ServerManager;
 import com.bolo.test.reqlimit.RequestLimit;
 
 import org.slf4j.Logger;
@@ -22,6 +24,8 @@ import org.springframework.context.annotation.Scope;
 
 
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -53,11 +57,16 @@ public class NotePadController {
 	private UserService service;
 	@Autowired
 	private RedisCacheUtil redisCacheUtil;
+    @Autowired
+    private NettyTCPServer tcpServer;
 
-	@AuthManage("manager")
+//	@AuthManage("manager")
     @RequestMapping(value="test",method = RequestMethod.GET)
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @ResponseBody
-    public String hashset(HttpServletRequest req, HttpServletResponse resp,ModelMap model){
+    public String hashset(HttpServletRequest req, HttpServletResponse resp,ModelMap model) throws Exception {
+        //manager.startServer(args[0]);
+        tcpServer.startServer();
         NotePad notePad = new NotePad();
         notePad.setTitle("123");
         redisCacheUtil.hsetNotePad("123","1",notePad);
@@ -91,7 +100,7 @@ public class NotePadController {
             return "false";
         }
         try {
-            file.transferTo(targetFile);
+            file.transferTo(targetFile); //文件复制
         } catch (IOException e) {
             logger.info("file为空");
         }
@@ -146,11 +155,13 @@ public class NotePadController {
 	}
 	/**
 	 * 添加留言
+     * 事务方式：事务执行成功，sql成功。
 	 * @param notePad 留言
 	 * @param req  请求
 	 * @param resp  响应
 	 * @return
 	 */
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	@RequestMapping(value="insertnote",method = RequestMethod.POST)
 	@ResponseBody
 	public String insertNote(NotePad notePad,HttpServletRequest req,HttpServletResponse resp){
@@ -182,6 +193,7 @@ public class NotePadController {
 		 String result = noteService.edit(notePad);
 		 return result;
 	}
+
 	/**
 	 * 删除留言
 	 * @param noteid

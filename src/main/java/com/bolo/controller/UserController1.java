@@ -79,7 +79,7 @@ public class UserController1 {
 		}
 	}
 
-	@AuthManage
+	@AuthManage("manager")
 	@RequestMapping(value="setper/{id}",method=RequestMethod.GET)
 	public String setper(@PathVariable("id") String id,HttpServletRequest req, HttpServletResponse resp,ModelMap model){
 		User user  = service.getUser(id);

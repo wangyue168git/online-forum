@@ -41,7 +41,10 @@ public class CronTask {
     @Autowired
     private UserService service;
 
-    @Scheduled(initialDelay=5000,fixedDelay=60000*30)
+    /**
+     * 定时更新权限表
+     */
+    @Scheduled(initialDelay=5000,fixedDelay=60000*20)
     public void run(){
         List<User> users = service.getUsers();
         for (User user : users) {
