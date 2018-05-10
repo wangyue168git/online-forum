@@ -1,6 +1,8 @@
 package com.bolo.test.reqlimit;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @Author wangyue
@@ -42,4 +44,24 @@ public class HttpRequestUtil {
         }
         return ip;
     }
+
+    public static String getHomePage(String url)
+    {
+        Pattern p = Pattern.compile("(http://|https://)?([^/|?]*)",Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(url);
+        String s = "";
+        for (int i = 0; i < 2; i++) {
+            m.find();
+            s = s+ m.group();
+        }
+        return s;
+    }
+    public static boolean acceptCode(int code) {
+        return isMovedStatusCode(code);
+    }
+    public static boolean isMovedStatusCode(int code) {
+        return code >= 300 && code < 400;
+    }
+
+
 }

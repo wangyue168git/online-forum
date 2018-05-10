@@ -29,6 +29,14 @@
 		</property>
 	</bean>
 
+	<bean id="proxy" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+	<property name="locations">
+        <array>
+            <value>classpath*:proxy.properties</value>
+        </array>
+    </property>
+</bean>
+
 	<!-- mybatisDao -->
 	<bean id="myBatisDao" class="com.bolo.mybatis.MyBatisDao" />
 
@@ -47,6 +55,24 @@
 		<property name="maxWait" value="500" />
 		<property name="poolPreparedStatements" value="false" />
 		<property name="defaultAutoCommit" value="false" />
+	</bean>
+
+	<bean id="dataSource_1" class = "org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}"/>
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+
+	</bean>
+
+	<bean id = "data" class = "com.bolo.data.DynamicDataSource">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry value-ref="dataSource" key = "dataSource"/>
+				<entry value-ref="dataSource_1" key="dataSource_1"/>
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="dataSource"/>
 	</bean>
 
 	<!-- mybatis配置 -->

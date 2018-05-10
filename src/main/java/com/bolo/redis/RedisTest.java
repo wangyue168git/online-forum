@@ -19,6 +19,7 @@ public class RedisTest {
     public static void main(String[] args) {
 
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("service-context.xml");
+
         context.start();
         redisCache = (RedisCacheUtil) context.getBean("redisCache");
 
