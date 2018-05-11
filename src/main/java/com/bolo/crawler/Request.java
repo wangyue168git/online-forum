@@ -42,6 +42,9 @@ public class Request implements Serializable{
     private Map<String, Object> extras;
     private Map<String, String> haders;
 
+    public Request() {
+    }
+
     public Map<String, String> getHeaders() {
         return haders;
     }

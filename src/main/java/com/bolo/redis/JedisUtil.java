@@ -1,5 +1,6 @@
 package com.bolo.redis;
 
+import com.bolo.crawler.Request;
 import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -19,11 +20,12 @@ public class JedisUtil {
     private Logger log = Logger.getLogger(this.getClass());
     /**缓存生存时间 */
     private final int expire = 60000;
-    private static JedisPool jedisPool = null;
+    private static JedisPool jedisPool = new JedisPool();
     /** 对存储结构为HashMap类型的操作 */
     public Hash HASH;
     /** 对存储结构为List类型的操作 */
     public Lists LISTS;
+    public Sets sets;
     public JedisUtil() {
 
     }
@@ -262,6 +264,23 @@ public class JedisUtil {
         }
 
     }
+    //*******************************************set*******************************************//
+
+    public class Sets{
+
+        public long sadd(String key, Request request){
+            Jedis jedis = getJedis();
+            return jedis.sadd(key.getBytes(),SerializeUtil.serialize(request));
+        }
+
+        public Request spop(String key){
+            Jedis jedis = getJedis();
+            return (Request) SerializeUtil.unserialize(jedis.spop(key.getBytes()));
+        }
+
+    }
+
+
 
     //*******************************************Lists*******************************************//
     public class Lists {

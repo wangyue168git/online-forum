@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class SiteUtil {
     public static void addCookieToStore(CookieStore cookieStore,Site site){
-        addCookieToStore(cookieStore,site);
+        addCookieToStore1(cookieStore,site);
     }
 
     private static void addCookieToStore1(CookieStore cookieStore,Site site){

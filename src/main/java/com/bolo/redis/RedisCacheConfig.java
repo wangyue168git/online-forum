@@ -1,5 +1,6 @@
 package com.bolo.redis;
 
+import com.bolo.crawler.Request;
 import com.bolo.entity.NotePad;
 import com.bolo.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,16 +35,17 @@ public class RedisCacheConfig extends CachingConfigurerSupport  {
     private volatile JedisConnectionFactory connectionFactory;
 
 //    @Bean
-    public RedisTemplate<String, String> redisTemplate(){
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<String, String>();
-        redisTemplate.setConnectionFactory(connectionFactory);
-        redisTemplate.setValueSerializer(new GenericToStringSerializer<Long>(Long.class));
-        return redisTemplate;
-    }
+//    public RedisTemplate<String, String> redisTemplate(){
+//        RedisTemplate<String, String> redisTemplateRequest = new RedisTemplate<String, String>();
+//        redisTemplateRequest.setConnectionFactory(connectionFactory);
+//        redisTemplateRequest.setValueSerializer(new GenericToStringSerializer<>(Request.class));
+//        return redisTemplateRequest;
+//    }
 
-//    @Bean
-    public RedisTemplate<String, NotePad> redisTemplateNote(){
-        RedisTemplate<String, NotePad> redisTemplate = new RedisTemplate<String, NotePad>();
+
+    @Bean
+    public RedisTemplate<String, Request> redisTemplateNote(){
+        RedisTemplate<String, Request> redisTemplate = new RedisTemplate<String, Request>();
         redisTemplate.setConnectionFactory(connectionFactory);
         return redisTemplate;
     }
