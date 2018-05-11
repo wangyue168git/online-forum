@@ -94,9 +94,6 @@ public abstract class AbstractCrawler extends StatusTracker {
         spider.publishEvent(event);
     }
 
-    public void finishSpider() {
-        spider.setSpiderLastStep(true);
-    }
 
     protected void removeClassification(String clf) {
         spider.addClassificationStatus(clf, Spider.CLASSFICATION_STATUS_REMOVE);
@@ -244,16 +241,7 @@ public abstract class AbstractCrawler extends StatusTracker {
         return URLEncoder.encode((suffix + "-" + picName).replaceAll("@", "").replaceAll("\\.", ""), "utf-8").replaceAll("%", "");
     }
     public String saveFile2(String url, String referer, String host, String picName, final boolean notifyStatus, String[][] headers) throws Exception {
-        //String authcodePath = "";//InfoUtil.getInstance().getInfo("road", "server.full.path");
 
-        //String path1 = suffix;
-		/*
-		File file2 = new File(path1);
-		if (!file2.exists() && !file2.isDirectory()) {
-			file2.mkdir();
-		}
-		*/
-        //final String destfilename = path1 + "/"+ picName;
         Request req = new Request(url);
         //req.setMethod("POST");
         if (referer != null) {
@@ -295,7 +283,6 @@ public abstract class AbstractCrawler extends StatusTracker {
                         notifyStatus();
                     }
                 }
-                //logger.info("---save img end time(s) :" + (System.currentTimeMillis() - sts) / 1000d);
             }
 
 
@@ -327,8 +314,6 @@ public abstract class AbstractCrawler extends StatusTracker {
                 //IOUtils.closeQuietly(output);
             }
 
-					/*PicUpload picUpload = new PicUpload();
-                    picUpload.upload(destfilename);*/
         }
     }
     protected void saveBytes(SimpleObject context, byte[] bs, String key, String picName) {

@@ -32,11 +32,13 @@ import java.util.concurrent.locks.ReentrantLock;
  * @Author wangyue
  * @Date 16:14
  */
+@Getter
+@Setter
 public class Spider implements Task {
 
     public static final String CLASSFICATION_STATUS_REMOVE = "Remove";
 
-    public static final String KEY_PROXY_HOLDER = "ProxyHolder";
+
 
     protected Logger logger = LoggerFactory.getLogger("Task");
 
@@ -52,8 +54,10 @@ public class Spider implements Task {
 
     protected final static int STAT_STOPPED = 2;
 
-    protected boolean spawnUrl = true;
+
     protected boolean useProxy = false;
+
+    protected boolean localProxy = false;
     protected boolean releaseProxy = false;
     @Setter
     protected boolean removeProxy = false;
@@ -75,14 +79,15 @@ public class Spider implements Task {
     private Site site = Site.me();
 
 
-    private int proxyMethod = ProxyManager.PROXY_METHOD_MULTI;//30000;
-    private int proxyMode = ProxyManager.PROXY_MODE_HTTP;
-    private int proxyHolder = ProxyManager.PROXY_HOLDER_NONE;
+//    private int proxyMethod = ProxyManager.PROXY_METHOD_MULTI;//30000;
+//    private int proxyMode = ProxyManager.PROXY_MODE_HTTP;
+//    private int proxyHolder = ProxyManager.PROXY_HOLDER_NONE;
 
     private SimpleObject context = new SimpleObject();
     private int emptySleepTime = 30000;//30000;
 
     private int recoverProxyWhenComplete = 0;
+
     protected String uuid;
 
     public static SimpleObject buildListenerContext() {
@@ -106,12 +111,9 @@ public class Spider implements Task {
         spiderListeners.add(observer);
         return this;
     }
-    @Setter
-    @Getter
+
     protected String sequenceNo = "";
-    @Setter
     public String certId = "";
-    @Setter
     public boolean spiderLastStep = false;
 
     public static int DEFAULT_RETRY_TIMES = 2;
@@ -138,7 +140,7 @@ public class Spider implements Task {
         for (String url : urls) {
             addRequest(new Request(url).addObjservers(observer));
         }
-        //signalNewUrl();
+        signalNewUrl();
         return this;
     }
     public void start() {
@@ -154,21 +156,11 @@ public class Spider implements Task {
         paramObj = obj;
         start1(spiderListener, obj);
     }
-    public int getProxyHolder() {
-        return proxyHolder;
-    }
-    public void setUseProxy(boolean useProxy) {
-        this.useProxy = useProxy;
-    }
-    public int getRecoverProxyWhenComplete() {
-        return recoverProxyWhenComplete;
-    }
 
     public void publishEvent(String event) {
         fireEvent(event, paramListener, 6, startContext, paramObj);
     }
     public void addClassificationStatus(String cls, String status) {
-        //logger.info(String.format("add cls : %s - %s", cls, status));
         clsStatusMap.put(cls, status);
     }
     public void setReleaseProxy(boolean releaseProxy) {
@@ -230,22 +222,7 @@ public class Spider implements Task {
             }
         }
     }
-    public Object getHolderProxy() {
-        return context.getObject(KEY_PROXY_HOLDER);
-    }
-    private Boolean useRemoteProxyManger;
-    public boolean useRemoteProxyManager() {
-        if(useRemoteProxyManger == null) {
-            String account = StringUtils.substring(sequenceNo, sequenceNo.indexOf(":") + 1, sequenceNo.length());
 
-            if(StringUtils.isEmpty(account)) {
-                account = "999";
-            }
-
-            logger.info("useRemoteProxyManger = {}, account={}", useRemoteProxyManger, account);
-        }
-        return useRemoteProxyManger;
-    }
 
     private boolean isHighistPriority(Request request) {
         long priority = -1 * request.getPriority();
@@ -316,31 +293,9 @@ public class Spider implements Task {
         try {
             spiderContext.put(ProcessorObserver.KEY_TASK, this);
             fireEvent(null, spiderListener, 1, spiderContext, obj);
-			/*if (ProxyManagerFactory.useProxyManager() && proxyMethod == ProxyManager.PROXY_METHOD_UNIQUE) {
-				host = ProxyManagerFactory.getProxyManager().getProxy(site.getDomain());
-			}*/
-            boolean enableProxyManager = ProxyManagerFactory.useProxyManager();
-            boolean useProxyManager = useProxy && enableProxyManager;
-            //String domain = site.getDomain();
-            proxyContext = new SimpleObject();
-            proxyContext.put(ProxyManager.CONTEXT_SITE, site.getSiteName());
-            proxyContext.put(ProxyManager.CONTEXT_SEQUENCE_NO, sequenceNo);
-            proxyContext.put(ProxyManager.CONTEXT_PROXY_STATUS_LIST, new JSONArray());
-            proxyContext.put(ProxyManager.CONTEXT_LAST_SYNC_USE_PROXY_TS, System.currentTimeMillis());
-            proxyContext.put(ProxyManager.CONTEXT_PROXY_NEED_LOCK, site.isLockProxyOnStartUp());
+
+
             Proxy host = null;
-            if (useProxyManager && useRemoteProxyManager()) {
-							/*proxyParam.put(ProxyManager.CONTEXT_PROXY_METHOD, proxyMethod);
-							proxyParam.put(ProxyManager.CONTEXT_PROXY_MODE, proxyMode);*/
-                // 使用代理，取之前的代理
-                if (ProxyManager.PROXY_HOLDER_ONE == proxyHolder) {
-                    host = (Proxy) getHolderProxy();
-                    if(host != null) {
-                        proxyContext.put(ProxyManager.CONTEXT_PROXY_KEY, host.getProxyKey());
-                        ProxyManagerFactory.getRemoteProxyManager().holdProxy(proxyContext);
-                    }
-                }
-            }
 
             long lastIntervalTs = System.currentTimeMillis();
 
@@ -348,9 +303,6 @@ public class Spider implements Task {
                 try {
                     Request request = Redis.getRequest("requestsQueue");
                     if (request == null) {
-						/*if (threadPool.getThreadAlive() == 0 && exitWhenComplete) {
-							break;
-						}*/
                         // wait until new url  added
                         waitNewUrl();
                         continue;
@@ -382,26 +334,12 @@ public class Spider implements Task {
                             }
                             continue;
                         }
-                        useProxyManager = useProxy && enableProxyManager;
+
                         int time = 0;
                         int numProxy = 0;
                         spiderContext.put(ProcessorObserver.KEY_REQUEST, request);
-                        boolean proxyHolderOne = ProxyManager.PROXY_HOLDER_ONE == proxyHolder;
-                        if (useProxyManager) {
-							/*proxyContext.put(ProxyManager.CONTEXT_PROXY_METHOD, proxyMethod);
-                            proxyContext.put(ProxyManager.CONTEXT_PROXY_MODE, proxyMode);*/
-                            // 使用代理，取之前的代理
-                            if (proxyHolderOne && host == null) {
-                                host = (Proxy) getHolderProxy();
-                            }
-                        }
-                        host = process(spiderListener, obj, spiderContext, host, useProxyManager, request, time, numProxy);
-                        if (useProxyManager) {
-                            // 如果使用代理，这个用户下次请求的时候使用同一个代理
-                            if (proxyHolderOne) {
-                                setHolderProxy(host);
-                            }
-                        }
+                        host = process(spiderListener, obj, spiderContext, host, localProxy, request, time, numProxy);
+
                     }
                 } catch (Exception e) {
                     logger.error("process request", e);
@@ -411,34 +349,6 @@ public class Spider implements Task {
                     lastIntervalTs = System.currentTimeMillis();
                 }
 
-            }
-            if (useProxyManager) {
-                if(useRemoteProxyManager()) {
-                    proxyContext.put(ProxyManager.CONTEXT_SPIDER_LAST_STEP, spiderLastStep);
-                    JSONArray jsonArray = (JSONArray) proxyContext.getObject(ProxyManager.CONTEXT_PROXY_STATUS_LIST);
-                    if(jsonArray != null && jsonArray.size() > 0) {
-                        ProxyManagerFactory.getRemoteProxyManager().useProxy(proxyContext, host, false);
-                        proxyContext.put(ProxyManager.CONTEXT_LAST_SYNC_USE_PROXY_TS, System.currentTimeMillis());
-                        jsonArray.clear();
-                        proxyContext.put(ProxyManager.CONTEXT_PROXY_STATUS_LIST, jsonArray);
-                    }
-                    boolean reset =  ProxyManager.PROXY_HOLDER_ONE != proxyHolder;
-                    releaseProxy(host, proxyContext, reset);
-                    if(removeProxy) {
-                        // 从该站点移除代理
-                        boolean allSite = false;
-                        proxyContext.put("recoverTime", recoverTime);
-                        ProxyManagerFactory.getRemoteProxyManager().removeProxy(proxyContext, host, allSite);
-                    }
-                } else {
-                    if (releaseProxy || ProxyManager.PROXY_HOLDER_ONE != proxyHolder) {
-                        try {
-                            host = releaseProxy(host, proxyContext, true);
-                        } catch (Exception e) {
-                            logger.error("release proxy error", e);
-                        }
-                    }
-                }
             }
             stat.set(STAT_STOPPED);
         } catch (Exception e) {
@@ -469,9 +379,6 @@ public class Spider implements Task {
             }
         }
     }
-    public void setHolderProxy(Object proxy) {
-        context.put(KEY_PROXY_HOLDER, proxy);
-    }
     public void close() {
         downloader.close();
     }
@@ -491,51 +398,9 @@ public class Spider implements Task {
             sleep((int) (Math.random() * site.getRndSleepTime() + 1000) * (stage + 1));
         }
     }
-    private Proxy process(SpiderListener spiderListener, Object obj, SimpleObject context, Proxy host, boolean useProxyManager, Request request, int time, int numProxy) {
+    private Proxy process(SpiderListener spiderListener, Object obj, SimpleObject context, Proxy host, boolean localProxy, Request request, int time, int numProxy) {
         context.put(ProcessorObserver.KEY_REQUEST, request);
-//        request.setUseProxy(useProxyManager); //不使用代理
-        if (useProxyManager) {
-            proxyContext.put(ProxyManager.CONTEXT_PROXY_METHOD, proxyMethod);
-            proxyContext.put(ProxyManager.CONTEXT_PROXY_MODE, proxyMode);
-            try {
-                if (proxyMethod == ProxyManager.PROXY_METHOD_UNIQUE) {
-                    if (host == null) {
-                        // 如果没有代理，则从代理池获取一个代理
-                        if(useRemoteProxyManager()) {
-                            host = ProxyManagerFactory.getRemoteProxyManager().getProxy(proxyContext);
-                        } else {
-                            host = ProxyManagerFactory.getProxyManager().getProxy(proxyContext);
-                        }
-                    }
-                } else if (proxyMethod == ProxyManager.PROXY_METHOD_MULTI) {
-                    host = releaseProxy(host, proxyContext, true);
-                    boolean isReset = false;
-                    if (proxyMode == ProxyManager.PROXY_MODE_HTTP && request.getUrl().startsWith("https")) {
-                        proxyContext.put(ProxyManager.CONTEXT_PROXY_MODE, ProxyManager.PROXY_MODE_HTTPS);
-                        isReset = true;
-                    }
-                    if(useRemoteProxyManager()) {
-                        host = ProxyManagerFactory.getRemoteProxyManager().getProxy(proxyContext);
-                    } else {
-                        host = ProxyManagerFactory.getProxyManager().getProxy(proxyContext);
-                    }
-                    if (isReset) {
-                        proxyContext.put(ProxyManager.CONTEXT_PROXY_MODE, proxyMode);
-                    }
-                }
-                if (host != null) {
-                    //设置代理
-                    request.setUseProxy(true);
-                    request.putExtra(Request.PROXY, host.getHttpHost());
-                    request.putExtra(Request.PROXY_SNO, host.getProxyKey());
-                    proxyContext.put(ProxyManager.CONTEXT_PROXY, host);
-                }
-            } catch (Exception e) {
-                if (!noLogger) {
-                    logger.error("use proxy error", e);
-                }
-            }
-        }
+        request.setUseProxy(localProxy);
         final Request requestFinal = request;
         //boolean refused = false;
         try {
@@ -555,94 +420,17 @@ public class Spider implements Task {
             pageCount.incrementAndGet();
             signalNewUrl();
         }
-        if (useProxyManager && host != null) {
-            try {
-                Number num = ((Number)request.getExtra(Request.PROXY_STATUS));
-                int statusCode = num == null ? Proxy.ERROR_PROXY : num.intValue();
-
-                num = ((Number)request.getExtra(Request.RESPONSE_TIME));
-                long duration = num == null ? 0l : num.longValue();
-
-                if(useRemoteProxyManager()) {
-                    if (Proxy.SUCCESS == statusCode) {
-                        if(duration > 1000) {
-                            logger.info("this proxy is success >>>> {} duration> {} ", host.getProxyKey(), duration);
-                        }
-                    } else {
-                        logger.info("this proxy is err >>>> {} >>>> errorCode is {} >>>> ", host.getProxyKey(), statusCode);
-                    }
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put(ProxyManager.CONTEXT_PROXY_KEY, host.getProxyKey());
-                    jsonObject.put(ProxyManager.CONTEXT_PROXY_DURATION, duration);
-                    jsonObject.put(ProxyManager.CONTEXT_PROXY_STATUS_CODE, statusCode);
-                    JSONArray jsonArray = (JSONArray) proxyContext.getObject(ProxyManager.CONTEXT_PROXY_STATUS_LIST);
-                    jsonArray.add(jsonObject);
-
-                    // 2 分钟同步一次代理使用情况
-                    if(System.currentTimeMillis() - proxyContext.getNumber(ProxyManager.CONTEXT_LAST_SYNC_USE_PROXY_TS).longValue() > 2 * 60 * 1000) {
-                        ProxyManagerFactory.getRemoteProxyManager().useProxy(proxyContext, host, false);
-                        proxyContext.put(ProxyManager.CONTEXT_LAST_SYNC_USE_PROXY_TS, System.currentTimeMillis());
-                        jsonArray.clear();
-                        proxyContext.put(ProxyManager.CONTEXT_PROXY_STATUS_LIST, jsonArray);
-                    }
-
-                } else {
-                    proxyContext.put(ProxyManager.CONTEXT_PROXY_STATUS_CODE, statusCode);
-                    proxyContext.put(ProxyManager.CONTEXT_PROXY_DURATION, duration);
-
-                    if (!ProxyManagerFactory.getProxyManager().useProxy(proxyContext, host, false)) {
-                        host = null; //releaseProxy(host, proxy);
-                    }
-                }
-
-                if (proxyMethod == ProxyManager.PROXY_METHOD_MULTI) {
-                    host = releaseProxy(host, proxyContext, true);
-                } else if (proxyMethod == ProxyManager.PROXY_METHOD_UNIQUE) {
-
-                }
-
-                if ((statusCode == Proxy.ERROR_PROXY) || (proxyMethod != ProxyManager.PROXY_METHOD_UNIQUE && statusCode != Proxy.SUCCESS)) {
-                    if (numProxy > 2) {
-                        if (!noLogger) {
-                            logger.error(String.format("Error - %1$s page %2$s, times - %3$s", request.getMethod() == null ? "GET" : request.getMethod(), request.getUrl(), "" + (numProxy - 1) * getSite().getCycleRetryTimes()));
-                        }
-                        //return host;
-                    } else {
-                        if (time > 0) {
-                            host = releaseProxy(host, proxyContext, true);
-                            time = 0;
-                            numProxy ++;
-                        } else {
-                            time ++;
-                        }
-                        host = process(spiderListener, obj, context, host, useProxyManager, requestFinal, time, numProxy);
-                    }
-                }
-
-            } catch (Exception e) {
-                if (!noLogger) {
-                    logger.error("set proxy status error", e);
-                }
-            }
-
-        }
-        return host;
-    }
-    private Proxy releaseProxy(Proxy host, SimpleObject proxy, boolean resetHost) {
-        if (host != null) {
-            if(useRemoteProxyManager()) {
-                ProxyManagerFactory.getRemoteProxyManager().releaseProxy(proxy, host, false);
-            } else {
-                ProxyManagerFactory.getProxyManager().releaseProxy(proxy, host);
-            }
-            if(resetHost) {
-                host = null;
-            }
-        }
         return host;
     }
     @Override
     public String getUUID() {
+        if (uuid != null) {
+            return uuid;
+        }
+//        if (site != null && !StringUtils.isNotBlank(site.getDomain())) {
+//            return site.getDomain();
+//        }
+        uuid = UUID.randomUUID().toString();
         return uuid;
     }
 
@@ -666,14 +454,9 @@ public class Spider implements Task {
     private RedisCacheUtil redisCacheUtil = new RedisCacheUtil();
 
     private void addRequest(Request request) {
-		/*if (site.getDomain() == null && request != null && request.getUrl() != null) {
-	            site.setDomain(UrlUtils.getDomain(request.getUrl()));
-	        }*/
+
         if (request != null && request.getUrl() != null) {
-//            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("service-context.xml");
-//            context.start();
-//            RedisCacheUtil redisCache = (RedisCacheUtil) context.getBean("redisCache");
-//            redisCache.addRequests("requestsQueue",request);
+
             Redis.addRequests("requestsQueue",request);
             if (request.getPriority() == 0) {
                 request.setPriority(defaultPriority);
@@ -718,4 +501,6 @@ public class Spider implements Task {
             "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/18.6.872.0 Safari/535.2 UNTRUSTED/1.0 3gpp-gba UNTRUSTED/1.0", "Mozilla/5.0 (X11; CrOS i686 1660.57.0) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.46 Safari/535.19",
             "Mozilla/5.0 (Windows NT 6.0; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.45 Safari/535.19", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.45 Safari/535.19",
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.45 Safari/535.19", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_5_8) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.151 Safari/535.19"};
+
+
 }

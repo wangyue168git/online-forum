@@ -144,7 +144,6 @@ public class HttpDownload extends AbstractDownloader {
     boolean retry = false;
         try {
         HttpUriRequest httpUriRequest = getHttpUriRequest(request, site, headers);
-        //host = getProxy(request, task);
         HttpContext hc = getHttpContext(task, request);;//new BasicHttpContext();
         httpClient = getHttpClient(task, request);
         long st = System.currentTimeMillis();
@@ -174,13 +173,7 @@ public class HttpDownload extends AbstractDownloader {
             logger.warn(String.format("version:%s statusCode:%d reason:%s " , statusLine.getProtocolVersion().toString(), statusCode, statusLine.getReasonPhrase()));
             retry = true;
         }
-            /*if (site.isShareCache()) {
-            	//CookieStore cookieStore = (CookieStore) hc.getAttribute(HttpClientContext.COOKIE_STORE);
-            	Collection<Cookie> cset = cookieStore.getCookies();
-            	for(Cookie c : cset) {
-            		site.addCookie(c.getDomain(), c.getName(), c.getValue());
-            	}
-            }*/
+
         sleep(sleepTime);
     } catch (ConnectTimeoutException e) {
         pcode = Proxy.ERROR_PROXY;
@@ -230,14 +223,7 @@ public class HttpDownload extends AbstractDownloader {
             logger.warn("close response fail", e);
         }
         request.putExtra(Request.PROXY_STATUS, pcode);
-            /*try {
-                if (httpClient != null) {
-                    httpClient.close();
-                }
-            } catch (Exception e) {
-                logger.warn("close httpClient fail", e);
-            }*/
-        //returnProxy(pcode, host);
+
     }
         if (retry) {
         onError(request, task, times, context, error);
@@ -258,30 +244,6 @@ public class HttpDownload extends AbstractDownloader {
                 logger.warn("page " + request.getUrl() + " error", e);
             }
             //context.put(ProcessorObserver.KEY_ERROR, e);
-        }
-    }
-
-    private HttpHost getProxy(Request request, Task task) {
-        HttpHost host = null;
-        try {
-            if (task.useProxy() &&  ProxyManagerFactory.useProxyManager()) {
-                //host = ProxyPool.getProxyPool().getProxy();
-                request.setUseProxy(true);
-                //request.putExtra(Request.PROXY, host);
-            }
-        } catch (Exception e) {
-            logger.error("getProxy", e);
-        }
-        return host;
-    }
-
-    private void returnProxy(int statusCode, HttpHost host) {
-        if (host != null) {
-            try {
-                //ProxyPool.getProxyPool().returnProxy(host, statusCode);
-            } catch (Exception e) {
-                logger.error("returnProxy", e);
-            }
         }
     }
 

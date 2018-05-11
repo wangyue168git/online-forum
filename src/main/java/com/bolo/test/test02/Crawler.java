@@ -16,12 +16,6 @@ public class Crawler extends AbstractCrawler implements Serializable{
 
     public Crawler(Spider spider) {
         this.spider = spider;
-        spider.getSite().setDomain("www.nx.10086.cn");
-        spider.getSite().setRndSleepTime(3);
-        spider.getSite().setCycleRetryTimes(2);
-        spider.getSite().setTimeOut(28000);
-        spider.getSite().setFollowRedirect(true);
-        spider.getSite().setCookieSpec(CookieSpecs.BROWSER_COMPATIBILITY);
     }
     public void check() {
         getUrl("https://nx.ac.10086.cn/login", "http://www.10086.cn/nx/index_951_951.html",
@@ -43,7 +37,6 @@ public class Crawler extends AbstractCrawler implements Serializable{
 
         Spider spider = SpiderManager.getInstance().createSpider("test", "aaa");
         Spider spider1 = SpiderManager.getInstance().createSpider("tete","3");
-
 
         Crawler crawler = new Crawler(spider);
         crawler.check();

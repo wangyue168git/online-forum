@@ -70,12 +70,7 @@ public class RedisSpiderListener  extends AbstractSpiderListener {
                 ac.getEntity().putAll(entity);
                 //ac.printEntityData();
             }
-            Object proxy = map.get(KEY_PROXY_HOLDER);
-            if (proxy != null) {
-                if (!proxy.toString().contains("54.223.60.17")) {
-                    ac.getSpider().setHolderProxy(proxy);
-                }
-            }
+
             String certId = (String) map.get(SessionUtil.CURRENT_CERT_ID);
             ac.setCertId(certId);
             ac.getSpider().setCertId(certId);
@@ -111,7 +106,7 @@ public class RedisSpiderListener  extends AbstractSpiderListener {
                             CookieStoreUtil.putContextToCookieStore(cs, 1);
                             map.put(KEY_REDIS_COOKIES, cs);
                         }
-                        putProxy(map, ac);
+//                        putProxy(map, ac);
                     }
                     RobotUtil.setCacheMap(null, businessKey, map, expired);
                 }
@@ -155,7 +150,7 @@ public class RedisSpiderListener  extends AbstractSpiderListener {
                         entity = ac.getEntity();
                     }
                     map.put(KEY_CACHE_DATA, entity);
-                    putProxy(map, ac);
+//                    putProxy(map, ac);
                     if (ac.getData().getString("TP_SWITCH_TYPE") != null || ac.getData().getBoolean("ClcContext") != null) {
                         ex = 1;
                     }
@@ -171,32 +166,5 @@ public class RedisSpiderListener  extends AbstractSpiderListener {
         }
 
 
-    }
-
-    private void putProxy(Map<String, Object> map, AbstractCrawler ac) {
-        ScheduledRecovery holderProxy = (ScheduledRecovery) ac.getSpider().getHolderProxy();
-        if (dataMap != null && holderProxy != null) {
-            dataMap.put(Constant.KEY_DATA_CONTEXT_NO, holderProxy.toKey());
-        }
-        final boolean existHolder = map.containsKey(KEY_PROXY_HOLDER);
-        if (ProxyManager.PROXY_HOLDER_ONE == ac.getSpider().getProxyHolder()) {
-            //holderProxy =
-            map.put(KEY_PROXY_HOLDER, holderProxy);
-        } else if (ProxyManager.PROXY_HOLDER_NONE == ac.getSpider().getProxyHolder() || (ac.getSpider().getRecoverProxyWhenComplete() > 0 && ac.isSuccess())) {
-            if (holderProxy != null && holderProxy.recover()) {
-                holderProxy = null;
-            }
-        }
-        try {
-            if (holderProxy != null) {
-                if (!existHolder) {
-                    //ScheduledProxyDiscoverer.addScheduledRecovery(holderProxy);
-                } else {
-                    //ScheduledProxyDiscoverer.updateScheduledRecovery(holderProxy);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("scheduledRecovery", e);
-        }
     }
 }

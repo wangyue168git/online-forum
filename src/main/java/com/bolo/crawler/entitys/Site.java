@@ -63,6 +63,10 @@ public class Site {
     private String cookieSpec;
     private String sslProtocolContext;
 
+    public boolean isLockProxyOnStartUp(){
+        return lockProxyOnStartUp;
+    }
+
     public String[][] getReplaceCharsWhenRedirect() {
         return replaceCharsWhenRedirect;
     }
