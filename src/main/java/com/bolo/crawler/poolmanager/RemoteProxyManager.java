@@ -1,7 +1,7 @@
 package com.bolo.crawler.poolmanager;
 
 import com.alibaba.fastjson.JSONObject;
-import com.bolo.crawler.httpclient.ProxyResponse;
+import com.bolo.crawler.entitys.ProxyResponse;
 import com.bolo.crawler.entitys.Proxy;
 import com.bolo.crawler.entitys.SimpleObject;
 import com.bolo.crawler.interfaceclass.ProxyManager;

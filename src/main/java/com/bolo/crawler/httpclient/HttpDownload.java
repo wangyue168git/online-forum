@@ -74,7 +74,7 @@ public class HttpDownload extends AbstractDownloader {
             return httpClientGenerator.getClient(null,request);
         }
         CloseableHttpClient httpClient = null;
-        String domain = site.getDomain();
+        String domain = site.getDomain() == null ? "commomClient" : site.getDomain();
         Map<String,Object> extra = request == null ? new HashMap<>() : request.getExtras();
         if (Request.REFRESH_HTTP_CLIENT_TRUE.equals(extra.get(Request.REFRESH_HTTP_CLIENT))){
             httpClient = httpClientGenerator.getClient(site,request);

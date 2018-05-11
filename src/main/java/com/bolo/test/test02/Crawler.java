@@ -16,7 +16,6 @@ public class Crawler extends AbstractCrawler implements Serializable{
 
     public Crawler(Spider spider) {
         this.spider = spider;
-        spider.setUseProxy(false);
         spider.getSite().setDomain("www.nx.10086.cn");
         spider.getSite().setRndSleepTime(3);
         spider.getSite().setCycleRetryTimes(2);
@@ -43,9 +42,12 @@ public class Crawler extends AbstractCrawler implements Serializable{
 
 
         Spider spider = SpiderManager.getInstance().createSpider("test", "aaa");
+        Spider spider1 = SpiderManager.getInstance().createSpider("tete","3");
+
+
         Crawler crawler = new Crawler(spider);
         crawler.check();
-        spider.start();
+        spider1.start();
 
 
 

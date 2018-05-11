@@ -1,4 +1,4 @@
-package com.bolo.crawler.httpclient;
+package com.bolo.crawler.entitys;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

@@ -493,7 +493,7 @@ public class Spider implements Task {
     }
     private Proxy process(SpiderListener spiderListener, Object obj, SimpleObject context, Proxy host, boolean useProxyManager, Request request, int time, int numProxy) {
         context.put(ProcessorObserver.KEY_REQUEST, request);
-        request.setUseProxy(useProxyManager); //不使用代理
+//        request.setUseProxy(useProxyManager); //不使用代理
         if (useProxyManager) {
             proxyContext.put(ProxyManager.CONTEXT_PROXY_METHOD, proxyMethod);
             proxyContext.put(ProxyManager.CONTEXT_PROXY_MODE, proxyMode);

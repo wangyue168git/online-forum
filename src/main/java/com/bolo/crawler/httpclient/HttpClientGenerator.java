@@ -244,7 +244,7 @@ public class HttpClientGenerator {
         }
         CookieStoreUtil.putContextToCookieStore(cookieStore, 2);
         CookieStoreUtil.putContextToCookieStore(cookieStore, 1);
-        httpClientBuilder.setDefaultCookieStore(cookieStore);
+        httpClientBuilder.setDefaultCookieStore(cookieStore); //为当前httpclient对象添加cookie设置
     }
     public void close() {
         connectionManager.close();

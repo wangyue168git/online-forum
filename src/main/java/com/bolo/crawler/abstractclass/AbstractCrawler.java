@@ -61,7 +61,7 @@ public abstract class AbstractCrawler extends StatusTracker {
     protected String certId;
 
     public AbstractCrawler() {
-        httpHost = new HttpHost("aws-proxy.cashbus.com", 7077);
+        httpHost = new HttpHost("127.0.0.1", 1080);
     }
     public long timeMillis() {
         return System.currentTimeMillis();
