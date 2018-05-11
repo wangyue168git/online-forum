@@ -348,7 +348,7 @@ public class Spider implements Task {
 						/*if (threadPool.getThreadAlive() == 0 && exitWhenComplete) {
 							break;
 						}*/
-                        // wait until new url added
+                        // wait until new url  added
                         waitNewUrl();
                         continue;
                     } else {
