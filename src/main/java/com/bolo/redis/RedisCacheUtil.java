@@ -1,14 +1,10 @@
 package com.bolo.redis;
 
-import com.bolo.crawler.Request;
+import com.bolo.crawler.entitys.Request;
 import com.bolo.entity.NotePad;
 import com.bolo.entity.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;

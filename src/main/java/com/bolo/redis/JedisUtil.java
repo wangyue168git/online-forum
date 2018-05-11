@@ -1,6 +1,6 @@
 package com.bolo.redis;
 
-import com.bolo.crawler.Request;
+import com.bolo.crawler.entitys.Request;
 import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

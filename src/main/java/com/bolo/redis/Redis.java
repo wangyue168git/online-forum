@@ -1,6 +1,6 @@
 package com.bolo.redis;
 
-import com.bolo.crawler.Request;
+import com.bolo.crawler.entitys.Request;
 import org.apache.shiro.crypto.hash.Hash;
 import redis.clients.jedis.Jedis;
 

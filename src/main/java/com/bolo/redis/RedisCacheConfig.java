@@ -1,7 +1,6 @@
 package com.bolo.redis;
 
-import com.bolo.crawler.Request;
-import com.bolo.entity.NotePad;
+import com.bolo.crawler.entitys.Request;
 import com.bolo.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
@@ -14,7 +13,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.cache.interceptor.KeyGenerator;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
 
 import java.lang.reflect.Method;
 

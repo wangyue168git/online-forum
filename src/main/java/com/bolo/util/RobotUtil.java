@@ -1,8 +1,8 @@
 package com.bolo.util;
 
-import com.bolo.crawler.SessionUtil;
-import com.bolo.crawler.SimpleObject;
-import com.bolo.crawler.StatusTracker;
+import com.bolo.crawler.utils.SessionUtil;
+import com.bolo.crawler.entitys.SimpleObject;
+import com.bolo.crawler.utils.StatusTracker;
 import com.bolo.redis.RedisCacheUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
