@@ -1,5 +1,6 @@
 package com.bolo.redis;
 
+import com.bolo.crawler.Request;
 import org.apache.shiro.crypto.hash.Hash;
 import redis.clients.jedis.Jedis;
 
@@ -16,6 +17,32 @@ public class Redis {
     public static void expire(String key, int seconds) {
         JedisUtil.getInstance().expire(key, seconds);
     }
+
+
+    public static long sadd(String key, Request request){
+        Jedis jedis = JedisUtil.getInstance().getJedis();
+        return jedis.sadd(key.getBytes(),SerializeUtil.serialize(request));
+    }
+
+    public static Request spop(String key){
+        Jedis jedis = JedisUtil.getInstance().getJedis();
+        byte[] bytes = jedis.spop(key.getBytes());
+        if (bytes == null){
+            return null;
+        }
+        return (Request) SerializeUtil.unserialize(bytes);
+    }
+
+    public static void addRequests(String key,Request...requests){
+        for (Request request:requests) {
+            sadd(key, request);
+        }
+    }
+
+    public static Request getRequest(String key){
+        return spop(key);
+    }
+
     /**
      * 无过期时间,一般设置过期时间
      * @param String  key

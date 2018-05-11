@@ -44,7 +44,7 @@ public class RobotUtil {
         SessionUtil.init(userId, module, account, businessKey);
         Map<String,Object> map = null;
         //synchronized (sync) {
-        map = RedisCacheUtil.getMapOrAddIfNotExist(businessKey, DEFAULT_CACHE_DURATION);
+        map = redisCacheUtil.getMapOrAddIfNotExist(businessKey, DEFAULT_CACHE_DURATION);
         //}
         if (map == null) {
             return true;
@@ -72,7 +72,7 @@ public class RobotUtil {
     }
     public static void clearContext() {
         String businessKey = SessionUtil.getText(SessionUtil.CURRENT_BUSINESS_KEY);
-        RedisCacheUtil.setMapToRedis(businessKey, Collections.emptyMap(), 1);
+        redisCacheUtil.setMapToRedis(businessKey, Collections.emptyMap(), 1);
     }
     public static void finish(Map<String, Object> map) {
         try {
@@ -127,7 +127,7 @@ public class RobotUtil {
             businessKey = SessionUtil.getText(module + "-BusinessKey");
         }
         //synchronized (sync) {
-        RedisCacheUtil.setMapToRedis(businessKey, map, duration);
+        redisCacheUtil.setMapToRedis(businessKey, map, duration);
         //}
     }
     public static Map<String, Object> getCacheMap(String module, String businessKey) {
@@ -137,6 +137,7 @@ public class RobotUtil {
         String businessKey = genKey(userId, module, account);
         return getCacheMap1(null, businessKey);
     }
+    static RedisCacheUtil redisCacheUtil = new RedisCacheUtil();
     private static Map<String, Object> getCacheMap1(String module, String businessKey) {
         if (module == null && businessKey == null) {
             throw new IllegalArgumentException("module和businessKey不能同时为Null");
@@ -149,7 +150,7 @@ public class RobotUtil {
         }
         Map<String, Object> map = null;
         //synchronized (sync) {
-        map = RedisCacheUtil.getMap(businessKey);
+        map = redisCacheUtil.getMap(businessKey);
         //}
         return map;
     }

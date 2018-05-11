@@ -292,6 +292,7 @@ public class HttpDownload extends AbstractDownloader{
                 .setConnectionRequestTimeout(site.getTimeOut())
                 .setSocketTimeout(site.getTimeOut())
                 .setConnectTimeout(site.getTimeOut())
+                .setRedirectsEnabled(site.isFollowRedirect())
                 .setCookieSpec(CookieSpecs.BEST_MATCH);
         if (StringUtils.isNotBlank(site.getCookieSpec())) {
             requestConfigBuilder.setCookieSpec(site.getCookieSpec());

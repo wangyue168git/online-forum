@@ -2,6 +2,7 @@ package com.bolo.crawler;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.bolo.redis.Redis;
 import com.bolo.redis.RedisCacheUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.HttpHostConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -58,7 +61,7 @@ public class Spider implements Task {
     protected boolean noLogger = false;
     protected int defaultPriority = 0;
 
-    protected boolean destroyWhenExit = true;
+    protected boolean destroyWhenExit = false;
     private List<StatusTracker> notifyList;
 
     private List<SpiderListener> spiderListeners;
@@ -74,7 +77,7 @@ public class Spider implements Task {
     private int proxyHolder = ProxyManager.PROXY_HOLDER_NONE;
 
     private SimpleObject context = new SimpleObject();
-    private int emptySleepTime = 1;//30000;
+    private int emptySleepTime = 30000;//30000;
 
     private int recoverProxyWhenComplete = 0;
     protected String uuid;
@@ -151,9 +154,13 @@ public class Spider implements Task {
     public int getProxyHolder() {
         return proxyHolder;
     }
+    public void setUseProxy(boolean useProxy) {
+        this.useProxy = useProxy;
+    }
     public int getRecoverProxyWhenComplete() {
         return recoverProxyWhenComplete;
     }
+
     public void publishEvent(String event) {
         fireEvent(event, paramListener, 6, startContext, paramObj);
     }
@@ -280,7 +287,6 @@ public class Spider implements Task {
         newUrlLock.lock();
         try {
             //double check
-
             newUrlCondition.await(emptySleepTime, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             logger.warn("waitNewUrl - interrupted, error {}", e);
@@ -337,14 +343,14 @@ public class Spider implements Task {
 
             while (!Thread.currentThread().isInterrupted() && stat.get() == STAT_RUNNING) {
                 try {
-                    Request request = redisCacheUtil.getRequest("requestsQueue");
+                    Request request = Redis.getRequest("requestsQueue");
                     if (request == null) {
 						/*if (threadPool.getThreadAlive() == 0 && exitWhenComplete) {
 							break;
 						}*/
                         // wait until new url added
                         waitNewUrl();
-                        break;
+                        continue;
                     } else {
                         if (sequentially) {
                             if (isHighistPriority(request)) {
@@ -484,6 +490,7 @@ public class Spider implements Task {
     }
     private Proxy process(SpiderListener spiderListener, Object obj, SimpleObject context, Proxy host, boolean useProxyManager, Request request, int time, int numProxy) {
         context.put(ProcessorObserver.KEY_REQUEST, request);
+        request.setUseProxy(useProxyManager); //不使用代理
         if (useProxyManager) {
             proxyContext.put(ProxyManager.CONTEXT_PROXY_METHOD, proxyMethod);
             proxyContext.put(ProxyManager.CONTEXT_PROXY_MODE, proxyMode);
@@ -514,6 +521,7 @@ public class Spider implements Task {
                     }
                 }
                 if (host != null) {
+                    //设置代理
                     request.setUseProxy(true);
                     request.putExtra(Request.PROXY, host.getHttpHost());
                     request.putExtra(Request.PROXY_SNO, host.getProxyKey());
@@ -542,7 +550,7 @@ public class Spider implements Task {
             }
         } finally {
             pageCount.incrementAndGet();
-//            signalNewUrl();
+            signalNewUrl();
         }
         if (useProxyManager && host != null) {
             try {
@@ -650,13 +658,20 @@ public class Spider implements Task {
     }
     private TreeMap<Long, LongAdder> urlMap = new TreeMap<>();
     private boolean sequentially;
-    public static RedisCacheUtil redisCacheUtil = new RedisCacheUtil();
+
+
+    private RedisCacheUtil redisCacheUtil = new RedisCacheUtil();
+
     private void addRequest(Request request) {
 		/*if (site.getDomain() == null && request != null && request.getUrl() != null) {
 	            site.setDomain(UrlUtils.getDomain(request.getUrl()));
 	        }*/
         if (request != null && request.getUrl() != null) {
-            redisCacheUtil.addRequests("requestsQueue",request);
+//            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("service-context.xml");
+//            context.start();
+//            RedisCacheUtil redisCache = (RedisCacheUtil) context.getBean("redisCache");
+//            redisCache.addRequests("requestsQueue",request);
+            Redis.addRequests("requestsQueue",request);
             if (request.getPriority() == 0) {
                 request.setPriority(defaultPriority);
             }

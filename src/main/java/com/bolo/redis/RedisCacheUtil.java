@@ -4,9 +4,11 @@ import com.bolo.crawler.Request;
 import com.bolo.entity.NotePad;
 import com.bolo.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -22,8 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class RedisCacheUtil {
 
     @Resource
-    private static RedisTemplate redisTemplate;
-
+    private RedisTemplate redisTemplate;
 
     public String hgetUserAuth(String key, String field){
         if(key == null || "".equals(key)){
@@ -180,26 +181,26 @@ public class RedisCacheUtil {
         return (Request) redisTemplate.opsForSet().pop(key);
     }
 
-    public static Map<String, Object> getMap(RedisTemplate template, String key) {
+    public Map<String, Object> getMap(RedisTemplate template, String key) {
         redisTemplate = template;
         return getMap(key);
     }
 
-    private static Map<String,Object> getMapOrAddIfNotExist(RedisTemplate template, String key, int seconds) {
+    private  Map<String,Object> getMapOrAddIfNotExist(RedisTemplate template, String key, int seconds) {
         if(redisTemplate == null) {
             redisTemplate = template;
         }
         return getMapOrAddIfNotExist(key, seconds);
     }
 
-    public static void setMapToRedis(RedisTemplate template, String key, Map map, int seconds) {
+    public  void setMapToRedis(RedisTemplate template, String key, Map map, int seconds) {
         if(redisTemplate == null) {
             redisTemplate = template;
         }
         setMapToRedis(key, map, seconds);
     }
 
-    public static Map<String, Object> getMap(String key) {
+    public  Map<String, Object> getMap(String key) {
         if (redisTemplate != null) {
             BoundHashOperations boundHashOps = redisTemplate.boundHashOps(key);
             if (boundHashOps.size() > 0) {
@@ -210,7 +211,7 @@ public class RedisCacheUtil {
         }
         return (Map<String, Object>) Redis.getObj(key);
     }
-    public static Map<String,Object> getMapOrAddIfNotExist(String key, int seconds) {
+    public  Map<String,Object> getMapOrAddIfNotExist(String key, int seconds) {
         Map<String,Object> map = (Map<String, Object>) getMap(key);
         if(map == null){
             map = new HashMap<String,Object>();
@@ -218,7 +219,7 @@ public class RedisCacheUtil {
         }
         return map;
     }
-    public static void setMapToRedis(String key, Map map, int seconds) {
+    public  void setMapToRedis(String key, Map map, int seconds) {
         if (redisTemplate != null) {
             BoundHashOperations ops = redisTemplate.boundHashOps(key);
             ops.putAll(map);
@@ -229,10 +230,10 @@ public class RedisCacheUtil {
             Redis.setEx(key, map, seconds);
         }
     }
-    public static RedisTemplate getRedisTemplate() {
+    public  RedisTemplate getRedisTemplate() {
         return redisTemplate;
     }
-    public static void setRedisTemplate(RedisTemplate temp) {
+    public  void setRedisTemplate(RedisTemplate temp) {
         redisTemplate = temp;
     }
 

@@ -132,7 +132,7 @@ public class HttpClientGenerator {
 
                 //socket 时这里不能设置值
                 if(site == null || !site.isSocketProxy()) {
-                    httpClientBuilder.setProxy(hh);
+                    httpClientBuilder.setProxy(hh); //设置代理
                 }
             }
         }

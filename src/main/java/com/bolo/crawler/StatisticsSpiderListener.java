@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @Author wangyue
  * @Date 16:53
+ * spider状态监听类
  */
 public class StatisticsSpiderListener extends AbstractSpiderListener implements ProcessorObserver{
     public static final int PERIOD_MINUTES = 5;
