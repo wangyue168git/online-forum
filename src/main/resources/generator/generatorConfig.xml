@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+
+<generatorConfiguration>
+    <properties resource="mybatisconfig.properties"/>
+
+    <context id="Mysql" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+        <plugin type="${mapper.plugin}">
+            <property name="mappers" value="${mapper.Mapper}"/>
+            <property name="caseSensitive" value="true"/>
+        </plugin>
+        <jdbcConnection driverClass="${jdbc.driver1}"
+                        connectionURL="${jdbc.url1}"
+                        userId="${jdbc.user}"
+                        password="${jdbc.password}"
+        ></jdbcConnection>
+
+        <javaModelGenerator targetPackage="com.bolo.entity" targetProject="${targetJavaProject}"/>
+
+        <sqlMapGenerator targetPackage="mapper" targetProject="${targetResourceProject}"/>
+
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.bolo.mybatis.mapper" targetProject="${targetJavaProject}"/>
+        <table tableName="%">
+            <!--identity表示ID是否自增，会设置相应的注解-->
+            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
+        </table>
+    </context>
+</generatorConfiguration>
+
+
+
+

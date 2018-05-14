@@ -80,6 +80,12 @@
 		<property name="dataSource" ref="dataSource" />
 		<property name="configLocation" value="classpath:mybatis-config.xml" />
 	</bean>
+
+    <!--打开后会导致报错：Cannot load JDBC driver class '${jdbc.driver}，mybatis扫描问题-->
+    <!--<bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">-->
+        <!--<property name="basePackage" value="com.bolo.mybatis.mapper"/>-->
+        <!--<property name="markerInterface" value="tk.mybatis.mapper.common.Mapper"/>-->
+    <!--</bean>-->
 	
 	<!-- 事务管理器配置,单数据源事务 -->
 	<bean id="transactionManager"
