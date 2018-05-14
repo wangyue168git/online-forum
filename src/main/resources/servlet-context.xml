@@ -42,8 +42,8 @@
                    </list>
                </property>
            </bean>
-        <!--<bean id="UTF8StringHttpMessageConverter" class="com.bolo.test.test01.UTF8StringHttpMessageConverter"> </bean> -->
-       </list> 
+        <bean id="UTF8StringHttpMessageConverter" class="com.bolo.test.test01.UTF8StringHttpMessageConverter"> </bean>
+       </list>
      </property> 
     </bean>
     <!-- 启用MVC注解 -->

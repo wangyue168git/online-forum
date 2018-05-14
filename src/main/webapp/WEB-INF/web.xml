@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="2.4" 
+<web-app version="2.4"
 	xmlns="http://java.sun.com/xml/ns/j2ee" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
@@ -93,11 +93,11 @@
 		<servlet-name>1.03</servlet-name>
 		<url-pattern>*.do</url-pattern>
 	</servlet-mapping>
-    <!--异常拦截-->
-    <error-page>
-        <error-code>404</error-code>
-        <!--<exception-type>java.lang.reflect.UndeclaredThrowableException</exception-type>-->
-        <location>/page/404.jsp</location>
-    </error-page>
+    <!--&lt;!&ndash;异常拦截&ndash;&gt;-->
+    <!--<error-page>-->
+        <!--<error-code>404</error-code>-->
+        <!--&lt;!&ndash;<exception-type>java.lang.reflect.UndeclaredThrowableException</exception-type>&ndash;&gt;-->
+        <!--<location>/page/404.jsp</location>-->
+    <!--</error-page>-->
 
 </web-app>
