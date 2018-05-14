@@ -93,11 +93,11 @@
 		<servlet-name>1.03</servlet-name>
 		<url-pattern>*.do</url-pattern>
 	</servlet-mapping>
-    <!--&lt;!&ndash;异常拦截&ndash;&gt;-->
-    <!--<error-page>-->
-        <!--<error-code>404</error-code>-->
-        <!--&lt;!&ndash;<exception-type>java.lang.reflect.UndeclaredThrowableException</exception-type>&ndash;&gt;-->
-        <!--<location>/page/404.jsp</location>-->
-    <!--</error-page>-->
+    <!--异常拦截-->
+    <error-page>
+        <error-code>404</error-code>
+        <!--<exception-type>java.lang.reflect.UndeclaredThrowableException</exception-type>-->
+        <location>/page/404.jsp</location>
+    </error-page>
 
 </web-app>
