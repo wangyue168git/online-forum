@@ -1,6 +1,5 @@
 package com.bolo.crawler.entitys;
 
-import com.bolo.crawler.poolmanager.ProxyManagerFactory;
 import com.bolo.crawler.abstractclass.AbstractScheduledRecovery;
 import com.bolo.crawler.interfaceclass.ProxyManager;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -239,9 +238,6 @@ public class Proxy extends AbstractScheduledRecovery implements Delayed, Seriali
 
     @Override
     public boolean recover() {
-        if (System.currentTimeMillis() - recoveryUpdateTs > recoveryDuration) {
-            return ProxyManagerFactory.getProxyManager().releaseProxy(null, this);
-        }
         return false;
     }
 

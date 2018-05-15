@@ -1,9 +1,6 @@
 package com.bolo.crawler.entitys;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.bolo.crawler.httpclient.HttpDownload;
-import com.bolo.crawler.poolmanager.ProxyManagerFactory;
 import com.bolo.crawler.utils.StatusTracker;
 import com.bolo.crawler.interfaceclass.*;
 import com.bolo.crawler.utils.SessionUtil;
@@ -11,7 +8,6 @@ import com.bolo.redis.Redis;
 import com.bolo.redis.RedisCacheUtil;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.HttpHostConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

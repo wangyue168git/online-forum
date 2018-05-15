@@ -8,7 +8,6 @@ import com.bolo.crawler.entitys.Site;
 import com.bolo.crawler.interfaceclass.Downloader;
 import com.bolo.crawler.interfaceclass.ProcessorObserver;
 import com.bolo.crawler.interfaceclass.Task;
-import com.bolo.crawler.poolmanager.ProxyManagerFactory;
 import com.bolo.crawler.utils.ContextUtil;
 import com.bolo.crawler.utils.CookieStoreUtil;
 import com.bolo.test.reqlimit.HttpRequestUtil;
