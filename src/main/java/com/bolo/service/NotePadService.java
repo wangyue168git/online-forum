@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import com.bolo.entity.NotePad;
 import com.bolo.mybatis.MyBatisDao;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * 业务层
  * @author 王越
@@ -65,7 +68,8 @@ public class NotePadService {
 	 * @return
 	 */
 	//@CachePut
-    @CacheEvict(value ="userCache", allEntries=true)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @CacheEvict(value ={"userCache","noteCache1","noteCache"}, allEntries=true)
     public String insert(NotePad notePad){
 		if(notePad.getTitle()!= null){
 			myBatisDao.insert("notePad.insert", notePad);
@@ -79,7 +83,7 @@ public class NotePadService {
 	 * @param notePad
 	 * @return
 	 */
-    @CacheEvict(value ="userCache", allEntries=true)
+    @CacheEvict(value ={"userCache","noteCache1","noteCache"}, allEntries=true)
 	public String  edit(NotePad notePad){
 		if(notePad.getTitle()!= null){
 			myBatisDao.insert("notePad.update", notePad);
@@ -93,7 +97,7 @@ public class NotePadService {
 	 * @param noteid
 	 * @return
 	 */
-    @CacheEvict(value ="userCache", allEntries=true)
+    @CacheEvict(value ={"userCache","noteCache1","noteCache"}, allEntries=true)
 	public String delete(int noteid){
 		myBatisDao.deleteNote("notePad.delete", noteid);
 		return "true";

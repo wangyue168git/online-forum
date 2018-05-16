@@ -24,8 +24,7 @@ import org.springframework.context.annotation.Scope;
 
 
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -62,7 +61,7 @@ public class NotePadController {
 
 //	@AuthManage("manager")
     @RequestMapping(value="test",method = RequestMethod.GET)
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @ResponseBody
     public String hashset(HttpServletRequest req, HttpServletResponse resp,ModelMap model) throws Exception {
         //manager.startServer(args[0]);
