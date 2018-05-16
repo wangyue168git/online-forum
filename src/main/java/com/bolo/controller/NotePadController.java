@@ -161,7 +161,7 @@ public class NotePadController {
 	 * @param resp  响应
 	 * @return
 	 */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	@RequestMapping(value="insertnote",method = RequestMethod.POST)
 	@ResponseBody
 	public String insertNote(NotePad notePad,HttpServletRequest req,HttpServletResponse resp){
