@@ -145,7 +145,7 @@ function replyon(){
 		<p>message：${notePad.content}
 		
 		</p>
-			<img alt="-----来自上帝之手 :)" class="img-responsive1" onmouseover="this.style.cursor='pointer';this.style.cursor='hand'" onmouseout="this.style.cursor='default'"  src="upload/${notePad.filename}" onclick="javascript:showimage('upload/${notePad.filename}');" />
+			<img alt="-----来自上帝之手 :)" class="img-responsive1" onmouseover="this.style.cursor='pointer';this.style.cursor='hand'" onmouseout="this.style.cursor='default'"  src="/uploadfile/upload/${notePad.filename}" onclick="javascript:showimage('/uploadfile/upload/${notePad.filename}');" />
 		  </div>
 	     <div class="panel-footer">
 	     
@@ -184,7 +184,7 @@ function replyon(){
             var form = new FormData(document.getElementById("upload"));
             $.ajax({
                 cache: true,
-                url:"upload.do",
+                url:"/uploadfile/upload.do",
                 type:"POST",
                 data:form,
                 async:false,
