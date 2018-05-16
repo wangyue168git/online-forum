@@ -200,20 +200,8 @@ function replyon(){
 	    }else{
 
             var form = new FormData(document.getElementById("upload"));
-            $.ajax({
-                cache: true,
-                url:"/uploadfile/upload.do",
-                type:"POST",
-                data:form,
-                async:false,
-                processData:false,
-                contentType:false,
-                success:function(data){
-                    if(data=="true"){
-                    }
+            document.getElementById("filename").value = document.getElementById("file").value;
 
-                }
-            });
 
 	       var result=false;
 	       var date = new Date().toLocaleString();
@@ -237,6 +225,20 @@ function replyon(){
 	    	      result = true;
 	    	  }
 	      });
+            $.ajax({
+                cache: true,
+                url:"/uploadfile/upload.do",
+                type:"POST",
+                data:form,
+                async:false,
+                processData:false,
+                contentType:false,
+                success:function(data){
+                    if(data=="true"){
+                    }
+
+                }
+            });
 	    return result;
 	    }     
  }
@@ -330,6 +332,7 @@ function replyon(){
            <input type="hidden" class="form-control" id="filename" value="" name="filename">
 		</div>	
 	</div>
+
 </form>
             <div class="form-group">
                 <label for="lastname"  class="col-sm-2 control-label">上传图片</label>

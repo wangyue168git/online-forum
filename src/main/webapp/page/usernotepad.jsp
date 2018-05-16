@@ -3,8 +3,8 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<html> 
-<head>  
+<html>
+<head>
 <link rel="stylesheet" href="http://static.runoob.com/assets/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="http://static.runoob.com/assets/jquery/2.0.3/jquery.min.js"></script>
 <script src="http://static.runoob.com/assets/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -23,29 +23,29 @@ body {
 	max-width: 70%;
 }
 </style>
-</head>  
-<body> 
+</head>
+<body>
 
 <form name='form1' action='table' method='post'>  </form>
-<nav class="navbar navbar-inverse" role="navigation"> 
-     <div class="container-fluid"> 
-     <div class="navbar-header"> 
-         <a class="navbar-brand" href="#">我的论坛</a> 
-     </div> 
-     <div> 
-         <ul class="nav navbar-nav"> 
-             <li class="active"><a href="#">留言板</a></li> 
-             <li class="dropdown"> 
-                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"> 
-                                                         个人中心  <b class="caret"></b> 
-                 </a> 
-                 <ul class="dropdown-menu"> 
-                     <li><a href="userselectmine">我的留言</a></li> 
-                     <li><a href="edituser/${id}">修改密码</a></li> 
-                 </ul> 
-             </li> 
-         </ul> 
-     </div> 
+<nav class="navbar navbar-inverse" role="navigation">
+     <div class="container-fluid">
+     <div class="navbar-header">
+         <a class="navbar-brand" href="#">我的论坛</a>
+     </div>
+     <div>
+         <ul class="nav navbar-nav">
+             <li class="active"><a href="#">留言板</a></li>
+             <li class="dropdown">
+                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                                         个人中心  <b class="caret"></b>
+                 </a>
+                 <ul class="dropdown-menu">
+                     <li><a href="userselectmine">我的留言</a></li>
+                     <li><a href="edituser/${id}">修改密码</a></li>
+                 </ul>
+             </li>
+         </ul>
+     </div>
      <div>
 		<form class="navbar-form navbar-left" role="search" action="search1" id="searchform">
 			<div class="form-group">
@@ -57,8 +57,8 @@ body {
 	 <ul class="nav navbar-nav navbar-right">
       <li><a href="exit"><span class="glyphicon glyphicon-log-in"></span> 退出</a></li>
     </ul>
-     </div> 
- </nav> 
+     </div>
+ </nav>
 
 
  <h2 class="text-center">
@@ -73,23 +73,23 @@ body {
    	  url:"selectreply",
    	  type:"GET",
       data:{
-    	 "noteid" : noteid 
+    	 "noteid" : noteid
       },
       async:false,
-   	  success:function(data){ 
+   	  success:function(data){
    		$("#replyby"+noteid).text("");
    		$("#replyby"+noteid).append(data);
    	  }
      });
  }
- 
+
 function reply1(noteid,title){
-	 var date = new Date().toLocaleString(); 
+	 var date = new Date().toLocaleString();
      $("#date1").val(date);
      $("#noteid1").val(noteid);
-     $("#title1").val(title);       
+     $("#title1").val(title);
 }
- 
+
 function replyon(){
 
      $.ajax({
@@ -108,19 +108,19 @@ function replyon(){
   		  }
   	  }
     });
-	
+
 }
 
  </script>
- 
+
            <div>
 
             <c:forEach items="${notelist}"  var="notePad" >
            <div class="panel panel-primary">
 	       <div class="panel-heading">
-		<h3 class="panel-title">  
-		标题：${notePad.title} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; 
-		作者：${notePad.id} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; 
+		<h3 class="panel-title">
+		标题：${notePad.title} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
+		作者：${notePad.id} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
 		 时间：${notePad.date}
 		</h3>
 	    </div>
@@ -128,30 +128,30 @@ function replyon(){
 
 	    <div class="panel-body">
 		<p>message：${notePad.content}
-		
+
 		</p>
 			<img alt="-----来自上帝之手 :)" class="img-responsive1" onmouseover="this.style.cursor='pointer';this.style.cursor='hand'" onmouseout="this.style.cursor='default'"  src="/uploadfile/upload/${notePad.filename}" onclick="javascript:showimage('/uploadfile/upload/${notePad.filename}');" />
 		  </div>
 	     <div class="panel-footer">
-	     
+
 	     <div class="panel panel-info">
 		<div class="panel-heading">
 		<a href="#collapseThree${notePad.noteid}"  data-toggle="collapse" ><button type="button" class="btn btn-primary btn-sm" onclick="toopen(${notePad.noteid})">查看</button></a>
 	    <button type="button" class="btn btn-primary btn-sm"data-toggle="modal" data-target="#myModal"  onclick="reply1(${notePad.noteid},'${notePad.title}')">回复</button>
-	  
+
 		</div>
 		<div id="collapseThree${notePad.noteid}"class="panel-collapse collapse">
 			<div class="panel-body" id="replyby${notePad.noteid}">
-				
+
 			</div>
 		</div>
 	</div>
-	     
-	    </div> 
+
+	    </div>
        </div>
        </div>
        </c:forEach>
-        </div> 
+        </div>
 
     <br>
 <script type="text/javascript">
@@ -161,27 +161,14 @@ function replyon(){
 	    if(id==""){
 	    	alert("未登录用户，请先登录");
 	    	location.href="lode";
-			return false;     
+			return false;
 	    }
 	    else if(title==""){
 		   alert("标题不能为空");
-		   return false;      
+		   return false;
 	    }else{
             var form = new FormData(document.getElementById("upload"));
-            $.ajax({
-                cache: true,
-                url:"/uploadfile/upload.do",
-                type:"POST",
-                data:form,
-                async:false,
-                processData:false,
-                contentType:false,
-                success:function(data){
-                    if(data=="true"){
-                    }
-
-                }
-            });
+            document.getElementById("filename").value = document.getElementById("file").value;
 
 	       var result=false;
 	       var date = new Date().toLocaleString();
@@ -199,15 +186,31 @@ function replyon(){
 	      			  location.reload();
 	      		  }else if(data==="stop"){
 	      			alert("您已被禁言！请管理员吃顿好的就给你解禁.....");
-	      			 
+
 	      		  }else{
 	      			alert("发表失败");
 	      		  }
 	      		 result = true;
 	      	  }
 	      });
+
+            $.ajax({
+                cache: true,
+                url:"/uploadfile/upload.do",
+                type:"POST",
+                data:form,
+                async:false,
+                processData:false,
+                contentType:false,
+                success:function(data){
+                    if(data=="true"){
+                    }
+
+                }
+            });
+
 	    return result;
-	    }     
+	    }
  }
  function showimage(source)
  {
@@ -215,9 +218,9 @@ function replyon(){
      $("#ShowImage_Form").modal();
  }
 
-</script>       
-      
-            
+</script>
+
+
 <!-- 回复框（Modal） -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
@@ -230,14 +233,14 @@ function replyon(){
 					回复留言
 				</h4>
 			</div>
-			<div class="input-group"> 
-             <span class="input-group-addon">回复：</span> 
+			<div class="input-group">
+             <span class="input-group-addon">回复：</span>
              <form class="form-horizontal" role="form" action="insertreply" method="post" id="formreply">
-             <input type="hidden" class="form-control" id="noteid1" name="noteid1"> 
-             <input type="hidden" class="form-control"   id="title1" name="title"> 
-             <input type="hidden" class="form-control" value="${id}"  id="id1" name="id"> 
-             <input type="hidden" class="form-control"  id="date1" name="date"> 
-             <input type="text" class="form-control" placeholder="Reply" id="replycontent"  name="replycontent">   
+             <input type="hidden" class="form-control" id="noteid1" name="noteid1">
+             <input type="hidden" class="form-control"   id="title1" name="title">
+             <input type="hidden" class="form-control" value="${id}"  id="id1" name="id">
+             <input type="hidden" class="form-control"  id="date1" name="date">
+             <input type="text" class="form-control" placeholder="Reply" id="replycontent"  name="replycontent">
              </form>
             </div>
 			<div class="modal-footer">
@@ -249,8 +252,8 @@ function replyon(){
 			</div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal -->
-	
-		
+
+
 </div>
 
 <!-- 留言框（Modal） -->
@@ -285,8 +288,11 @@ function replyon(){
 	   <div class="col-sm-10">
 		<textarea class="form-control" rows="3" id="content"  name="content" placeholder="content"></textarea>
 		<input type="hidden" class="form-control" id="date" value="" name="date">
-		</div>	
+		</div>
 	</div>
+				<div class="form-group">
+						<input type="hidden" name="filename" id = "filename" value=""/>
+				</div>
 </form>
             <div class="form-group">
                 <label for="lastname"  class="col-sm-2 control-label">上传图片</label>
@@ -313,5 +319,5 @@ function replyon(){
 		</div>
 	</div>
 </div>
-</body>    
+</body>
 </html>

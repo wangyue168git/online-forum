@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -173,7 +175,16 @@ public class NotePadController {
             }
         }
 		session.setAttribute("lastNotePad",notePad);
-		notePad.setFilename((String)session.getAttribute("lastFileName"));
+
+        //从文件绝对路径中取文件名
+        String filename = notePad.getFilename();
+        if (filename.contains("/")){
+            notePad.setFilename(filename.substring(filename.lastIndexOf("/")+1));
+        }else {
+            notePad.setFilename(filename.substring(filename.lastIndexOf("\\")+1));
+        }
+
+//		notePad.setFilename((String)session.getAttribute("lastFileName"));
 		if(redisCacheUtil.hgetUserAuth("userAuths",id).equals("-1")){
 			return "stop";
 		}else{
@@ -206,8 +217,8 @@ public class NotePadController {
 	public String deleteNote(@RequestParam("noteid") int noteid,HttpServletRequest req,HttpServletResponse resp){
 		HttpSession session = req.getSession();
 		if((session.getAttribute("id"))!=null){
-		  String result = noteService.delete(noteid);
-		  return result;
+		    String result = noteService.delete(noteid);
+		    return result;
 		}else
 			return "false";
 	}

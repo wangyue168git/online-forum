@@ -182,20 +182,7 @@ function del(noteid){
 	    }else{
 
             var form = new FormData(document.getElementById("upload"));
-            $.ajax({
-                cache: true,
-                url:"/uploadfile/upload.do",
-                type:"POST",
-                data:form,
-                async:false,
-                processData:false,
-                contentType:false,
-                success:function(data){
-                    if(data=="true"){
-                    }
-
-                }
-            });
+            document.getElementById("filename").value = document.getElementById("file").value;
 	       var result=false;
 	       var date = new Date().toLocaleString();
 	       $("#date").val(date);
@@ -219,6 +206,22 @@ function del(noteid){
 	      		 result = true;
 	      	  }
 	      });
+
+            $.ajax({
+                cache: true,
+                url:"/uploadfile/upload.do",
+                type:"POST",
+                data:form,
+                async:false,
+                processData:false,
+                contentType:false,
+                success:function(data){
+                    if(data=="true"){
+                    }
+
+                }
+            });
+
 	    return result;
 	    }     
  }
@@ -329,15 +332,19 @@ function showimage(source)
 	   <div class="col-sm-10">
 		<textarea class="form-control" rows="3" id="content"  name="content" placeholder="content"></textarea>
 		<input type="hidden" class="form-control" id="date" value="" name="date">
-		</div>	
+		</div>
+
 	</div>
-				<div class="form-group">
-					<label for="lastname"  class="col-sm-2 control-label">上传图片</label>
-					<form action="upload.do" method="post" enctype="multipart/form-data" id="upload">
-						<input type="file" name="file" id = "file"/>
-					</form>
-				</div>
+                <div class="form-group">
+                    <input type="hidden" name="filename" id = "filename" value=""/>
+                </div>
 </form>
+            <div class="form-group">
+                <label for="lastname"  class="col-sm-2 control-label">上传图片</label>
+                <form action="upload.do" method="post" enctype="multipart/form-data" id="upload">
+                    <input type="file" name="file" id = "file"/>
+                </form>
+            </div>
 	<div class="modal-footer">
 			<button type="button" class="btn btn-default" data-dismiss="modal">关闭
 			</button>
