@@ -1,4 +1,4 @@
-package com.bolo.test.nettys;
+package com.bolo.test.nettys.client;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -34,19 +34,24 @@ public class EchoClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         ctx.writeAndFlush(firstMessage);
-        System.out.print("active");
+        System.out.println("active");
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ctx.write(msg);
-        System.out.print("read");
+//        ctx.write(msg);
+        System.out.println("read..");
+        ByteBuf byteBuf = (ByteBuf) msg;
+        byte[] s = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(s);
+        System.out.println(new String(s));
+        System.out.println("read..end");
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        ctx.flush();
-        System.out.print("readok");
+//        ctx.flush();
+        System.out.println("read ok");
     }
 
     @Override

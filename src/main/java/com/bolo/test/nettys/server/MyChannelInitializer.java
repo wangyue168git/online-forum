@@ -1,6 +1,5 @@
-package com.bolo.test.nettys;
+package com.bolo.test.nettys.server;
 
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -10,8 +9,7 @@ import io.netty.handler.timeout.IdleStateHandler;
  * @Author wangyue
  * @Date 19:19
  */
-public class MyChannelInitializer extends
-        ChannelInitializer<SocketChannel> {
+public class MyChannelInitializer extends ChannelInitializer<SocketChannel> {
     private static final int MAX_IDLE_SECONDS = 60;
 
     @Override

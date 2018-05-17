@@ -1,14 +1,11 @@
-package com.bolo.test.nettys;
+package com.bolo.test.nettys.server;
 
-import com.sun.org.apache.xpath.internal.operations.String;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.apache.log4j.Logger;
-
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.Arrays;
 
 /**
  * @Author wangyue
@@ -17,23 +14,35 @@ import java.util.Arrays;
 public class MyHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(MyHandler.class.getName());
+    private ByteBuf firstMessage  = Unpooled.buffer(33);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ctx.write("123123");
-        System.out.println("start..." + ctx.read());
+
+
+//        ctx.write("123123");
+//        System.out.println("start..." + ctx.read());
+
+
         ByteBuf byteBuf = (ByteBuf) msg;
         byte[] s = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(s);
-        System.out.println(s);
+        System.out.println(new String(s));
 
-        ByteArrayInputStream is = new ByteArrayInputStream(s);
+        firstMessage.writeBytes("Hi...".getBytes());
+        ctx.writeAndFlush(firstMessage);
 
     }
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) {
+
+        System.out.print("active");
+    }
+
+    @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        ctx.flush();
+
         System.out.println("end...");
     }
 

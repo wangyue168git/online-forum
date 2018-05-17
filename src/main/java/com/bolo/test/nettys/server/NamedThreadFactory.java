@@ -1,4 +1,4 @@
-package com.bolo.test.nettys;
+package com.bolo.test.nettys.server;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

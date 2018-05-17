@@ -1,4 +1,4 @@
-package com.bolo.test.nettys;
+package com.bolo.test.nettys.client;
 
 
 
@@ -11,10 +11,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-
-import java.io.IOException;
-import java.net.*;
-
 /**
  * @Author wangyue
  * @Date 20:19
@@ -24,6 +20,7 @@ public class Cilent {
     private final String host;
     private final int port;
     private final int firstMessageSize;
+    private static final int MAX_IDLE_SECONDS = 60;
 
     public Cilent(String host, int port, int firstMessageSize) {
         this.host = host;

@@ -1,4 +1,4 @@
-package com.bolo.test.nettys;
+package com.bolo.test.nettys.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
