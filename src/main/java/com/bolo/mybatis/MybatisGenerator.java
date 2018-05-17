@@ -1,4 +1,4 @@
-package com.bolo.test.test02;
+package com.bolo.mybatis;
 
 
 import org.mybatis.generator.api.MyBatisGenerator;

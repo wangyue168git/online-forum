@@ -15,8 +15,9 @@ import javax.servlet.http.HttpSession;
 
 import com.bolo.redis.RedisCacheUtil;
 import com.bolo.test.auther.AuthManage;
-import com.bolo.test.nettys.NettyTCPServer;
-import com.bolo.test.nettys.ServerManager;
+
+
+import com.bolo.test.nettys.server.NettyTCPServer;
 import com.bolo.test.reqlimit.RequestLimit;
 
 import org.slf4j.Logger;

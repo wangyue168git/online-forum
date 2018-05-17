@@ -124,14 +124,14 @@
     <!--<import resource="quartz.xml"/>-->
 
 
-    <bean id="tcpServer" class= "com.bolo.test.nettys.NettyTCPServer" destroy-method="stopServer">
+    <bean id="tcpServer" class= "com.bolo.test.nettys.server.NettyTCPServer" destroy-method="stopServer">
         <constructor-arg ref="tcpConfig" />
         <constructor-arg ref="myChannelInitializer" />
     </bean>
 
-    <bean id="myChannelInitializer" class="com.bolo.test.nettys.MyChannelInitializer"/>
+    <bean id="myChannelInitializer" class="com.bolo.test.nettys.server.MyChannelInitializer"/>
 
-    <bean id="tcpConfig" class="com.bolo.test.nettys.NettyConfig">
+    <bean id="tcpConfig" class="com.bolo.test.nettys.server.NettyConfig">
         <property name="channelOptions" ref="tcpChannelOptions"/>
         <property name="bossGroup" ref="bossGroup"/>
         <property name="workerGroup" ref="workerGroup"/>
@@ -160,11 +160,11 @@
         <constructor-arg index="1" ref="workerThreadFactory" />
     </bean>
 
-    <bean id="bossThreadFactory" class="com.bolo.test.nettys.NamedThreadFactory">
+    <bean id="bossThreadFactory" class="com.bolo.test.nettys.server.NamedThreadFactory">
         <constructor-arg type="java.lang.String" value="Server-Boss" />
     </bean>
 
-    <bean id="workerThreadFactory" class="com.bolo.test.nettys.NamedThreadFactory">
+    <bean id="workerThreadFactory" class="com.bolo.test.nettys.server.NamedThreadFactory">
         <constructor-arg type="java.lang.String" index="0" value="Server-Worker" />
     </bean>
     <task:annotation-driven scheduler="taskScheduler"/>
