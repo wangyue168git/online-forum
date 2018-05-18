@@ -4,10 +4,14 @@ import com.bolo.crawler.abstractclass.AbstractCrawler;
 import com.bolo.crawler.entitys.SimpleObject;
 import com.bolo.crawler.entitys.Spider;
 import com.bolo.crawler.poolmanager.SpiderManager;
+import com.bolo.crawler.poolmanager.ThreadPoolManager;
 import com.bolo.crawler.utils.ContextUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -15,6 +19,8 @@ import org.jsoup.select.Elements;
  * @Date 14:23
  */
 public class ZhongZiCrawler extends AbstractCrawler{
+
+    public static Map<String,String> map = new HashMap<>();
 
 
     public ZhongZiCrawler(Spider spider){
@@ -33,7 +39,7 @@ public class ZhongZiCrawler extends AbstractCrawler{
                 if (element!=null){
                     String href = element.attr("href");
 
-                    //String title = element.attr("title");
+                    String title = element.attr("title");
                     getUrl("https://www.zhongziso.net" + href, null, build(new CrawlerObserver() {
                         @Override
                         public void afterRequest(SimpleObject context) throws Exception {
@@ -47,6 +53,8 @@ public class ZhongZiCrawler extends AbstractCrawler{
                                         Document document1 = ContextUtil.getDocumentOfContent(context);
                                         Elements elements1 = document1.select("div#content").first().select("div.panel-body");
                                         String torrent = elements1.get(1).select("a").first().attr("href");
+                                        map.put(torrent,"");
+
                                     }
                                 }));
                             }
@@ -69,5 +77,11 @@ public class ZhongZiCrawler extends AbstractCrawler{
         crawler.getZhongZi();
         spider.start();
 //        spider1.start();
+
+        System.out.println(ZhongZiCrawler.map.size());
+//        crawler.destory();
+//        System.out.println(ThreadPoolManager.getCrawlerThreadPool().isShutdown());
+//        ThreadPoolManager.getCrawlerThreadPool().shutdown();
+
     }
 }

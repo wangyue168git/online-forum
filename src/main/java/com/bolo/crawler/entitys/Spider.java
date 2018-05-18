@@ -50,7 +50,7 @@ public class Spider extends AbstractTask implements Serializable {
 
     protected int threadNum = 1;
 
-    protected AtomicInteger stat = new AtomicInteger(STAT_INIT);
+    protected volatile AtomicInteger stat = new AtomicInteger(STAT_INIT);
 
     protected boolean exitWhenComplete = true;
 
@@ -64,17 +64,16 @@ public class Spider extends AbstractTask implements Serializable {
     protected boolean useProxy = false;
 
     protected boolean localProxy = false;
-    protected boolean releaseProxy = false;
+
     @Setter
     protected boolean removeProxy = false;
     @Setter
     protected long recoverTime = -1L;
-    @Setter
-    protected boolean removeAllSiteProxy = false;
-    protected boolean noLogger = false;
-    protected int defaultPriority = 0;
 
-    protected boolean destroyWhenExit = false;
+    protected boolean noLogger = false;
+
+
+    protected boolean destroyWhenExit = true;
     private List<StatusTracker> notifyList;
 
     private List<SpiderListener> spiderListeners;
@@ -88,9 +87,9 @@ public class Spider extends AbstractTask implements Serializable {
 
 
     private SimpleObject context = new SimpleObject();
-    private int emptySleepTime = 3000;//30000;
+    private int emptySleepTime = 30000;//30000;
 
-    private int recoverProxyWhenComplete = 0;
+
 
     protected String uuid;
 
@@ -266,7 +265,7 @@ public class Spider extends AbstractTask implements Serializable {
 
 
             final Proxy[] host = {null};
-
+            long beforewait;
             long lastIntervalTs = System.currentTimeMillis();
 
             while (!Thread.currentThread().isInterrupted() && stat.get() == STAT_RUNNING) {
@@ -275,7 +274,11 @@ public class Spider extends AbstractTask implements Serializable {
                     Request request = scheduleQueue.poll(this);
                     if (request == null) {
                         // wait until new url  added
+                        beforewait = System.currentTimeMillis();
                         waitNewUrl();
+                        if(System.currentTimeMillis() - beforewait >= 30000){
+                            stopSpider();
+                        }
                         continue;
                     } else {
                         crawlerThreadPool.execute(new Runnable() {
@@ -288,30 +291,28 @@ public class Spider extends AbstractTask implements Serializable {
                                         return;
                                     }
                                 }
-                                Set<Map.Entry<String, String>> eset = clsStatusMap.entrySet();
-                                String status = null;
-                                String cls = "";
+//                                Set<Map.Entry<String, String>> eset = clsStatusMap.entrySet();
+//                                String status = null;
+//                                String cls = "";
                                 // 如果Classification存在于clsStatusMap，则这个请求跳过
-                                for (Map.Entry<String, String> e : eset) {
-                                    if (request.isClassification(e.getKey())) {
-                                        cls = e.getKey();
-                                        status = e.getValue();
-                                        break;
-                                    }
-                                }
-                                if (status != null && CLASSFICATION_STATUS_REMOVE.equalsIgnoreCase(status)) {
-                                    logger.info(String.format("------%s----remove [%s] clf %s", request.getExtra("sequenceNo"), cls, request.getUrl()));
-                                    try {
-                                        request.notifyObserver(4, request, null);
-                                    } catch (Exception e) {
-                                        logger.error("notifyObserver when break request", e);
-                                    }
-                                    return;
-                                }
-                                int time = 0;
-                                int numProxy = 0;
+//                                for (Map.Entry<String, String> e : eset) {
+//                                    if (request.isClassification(e.getKey())) {
+//                                        cls = e.getKey();
+//                                        status = e.getValue();
+//                                        break;
+//                                    }
+//                                }
+//                                if (status != null && CLASSFICATION_STATUS_REMOVE.equalsIgnoreCase(status)) {
+//                                    logger.info(String.format("------%s----remove [%s] clf %s", request.getExtra("sequenceNo"), cls, request.getUrl()));
+//                                    try {
+//                                        request.notifyObserver(4, request, null);
+//                                    } catch (Exception e) {
+//                                        logger.error("notifyObserver when break request", e);
+//                                    }
+//                                    return;
+//                                }
                                 spiderContext.put(ProcessorObserver.KEY_REQUEST, request);
-                                host[0] = process(spiderListener, obj, spiderContext, host[0], localProxy, request, time, numProxy);
+                                host[0] = process(spiderListener, obj, spiderContext, host[0], localProxy, request, 0, 0);
                             }
                         });
 
@@ -341,6 +342,12 @@ public class Spider extends AbstractTask implements Serializable {
             }
         }
         notifyList();
+    }
+
+
+    public void stopSpider(){
+        logger.info("no task in the queue,and spider stop....");
+        stat.set(STAT_STOPPED);
     }
 
     private void notifyList() {

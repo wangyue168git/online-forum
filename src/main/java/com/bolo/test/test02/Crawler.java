@@ -4,6 +4,7 @@ import com.bolo.crawler.abstractclass.AbstractCrawler;
 import com.bolo.crawler.entitys.SimpleObject;
 import com.bolo.crawler.entitys.Spider;
 import com.bolo.crawler.poolmanager.SpiderManager;
+import com.bolo.test.crawler.CrawlerObserver;
 import org.apache.http.client.config.CookieSpecs;
 
 import java.io.Serializable;
@@ -31,15 +32,12 @@ public class Crawler extends AbstractCrawler implements Serializable{
 
     public static void main(String[] args) {
 
-
-
-
-
         Spider spider = SpiderManager.getInstance().createSpider("test", "aaa");
         Spider spider1 = SpiderManager.getInstance().createSpider("tete","3");
 
         Crawler crawler = new Crawler(spider);
         crawler.check();
+
         spider1.start();
 
 

@@ -67,6 +67,7 @@ public class SpiderAdder extends AbstractTask{
         for (Request request : requests) {
             addRequest(request);
         }
+        spider.signalNewUrl();
         return this;
     }
 

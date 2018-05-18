@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SpiderManager {
     protected org.slf4j.Logger logger = LoggerFactory.getLogger("SpiderManager");
     private static AtomicBoolean activateStatistics = new AtomicBoolean(true);
-    protected CountableThreadPool threadPool = ThreadPoolManager.getSpiderThreadPool();
+    protected CountableThreadPool threadPool;
     protected ExecutorService  executorService;
     private static  final SpiderManager instance = new SpiderManager(50);
 
