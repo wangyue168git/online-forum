@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @Date 16:53
  * spider状态监听类
  */
-public class StatisticsSpiderListener extends AbstractSpiderListener implements ProcessorObserver {
+public class StatisticsSpiderListener extends AbstractSpiderListener implements ProcessorObserver{
     public static final int PERIOD_MINUTES = 5;
     /*
      1.统计每个site的访问频率，多少次或多久后会被封，会不会解封

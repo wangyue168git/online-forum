@@ -1,7 +1,7 @@
 package com.bolo.crawler.interfaceclass;
 
 import com.bolo.crawler.entitys.Request;
-import javafx.concurrent.Task;
+import com.bolo.crawler.interfaceclass.Task;
 
 /**
  * @Author wangyue

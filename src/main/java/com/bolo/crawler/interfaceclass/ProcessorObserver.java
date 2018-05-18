@@ -3,11 +3,13 @@ package com.bolo.crawler.interfaceclass;
 import com.bolo.crawler.entitys.Request;
 import com.bolo.crawler.entitys.SimpleObject;
 
+import java.io.Serializable;
+
 /**
  * @Author wangyue
  * @Date 14:50
  */
-public interface ProcessorObserver {
+public interface ProcessorObserver  {
 
     String KEY_CONTENT = "ProcessorObserver.content";
     String KEY_REQUEST = "ProcessorObserver.request";

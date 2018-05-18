@@ -1,11 +1,16 @@
 package com.bolo.crawler.entitys;
 
+import com.bolo.crawler.abstractclass.AbstractTask;
 import com.bolo.crawler.httpclient.HttpDownload;
+import com.bolo.crawler.poolmanager.CountableThreadPool;
+import com.bolo.crawler.poolmanager.ThreadPoolManager;
+import com.bolo.crawler.queue.ScheduleQueue;
+import com.bolo.crawler.queue.ScheduleQueueManager;
 import com.bolo.crawler.utils.StatusTracker;
 import com.bolo.crawler.interfaceclass.*;
 import com.bolo.crawler.utils.SessionUtil;
-import com.bolo.redis.Redis;
-import com.bolo.redis.RedisCacheUtil;
+
+
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.http.conn.HttpHostConnectException;
@@ -13,15 +18,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.LongAdder;
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-
 
 
 /**
@@ -30,11 +35,16 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Getter
 @Setter
-public class Spider implements Task {
+public class Spider extends AbstractTask implements Serializable {
 
+
+    private static final long serialVersionUID = 6529685098267757693L;
     public static final String CLASSFICATION_STATUS_REMOVE = "Remove";
 
 
+    protected ScheduleQueue scheduleQueue = ScheduleQueueManager.getScheduleQueue();
+
+    protected CountableThreadPool crawlerThreadPool = ThreadPoolManager.getCrawlerThreadPool();
 
     protected Logger logger = LoggerFactory.getLogger("Task");
 
@@ -74,13 +84,11 @@ public class Spider implements Task {
     private Date startTime;
     private Site site = Site.me();
 
+    private SpiderAdder spiderAdder = new SpiderAdder(this);
 
-//    private int proxyMethod = ProxyManager.PROXY_METHOD_MULTI;//30000;
-//    private int proxyMode = ProxyManager.PROXY_MODE_HTTP;
-//    private int proxyHolder = ProxyManager.PROXY_HOLDER_NONE;
 
     private SimpleObject context = new SimpleObject();
-    private int emptySleepTime = 30000;//30000;
+    private int emptySleepTime = 3000;//30000;
 
     private int recoverProxyWhenComplete = 0;
 
@@ -89,6 +97,7 @@ public class Spider implements Task {
     public static SimpleObject buildListenerContext() {
         return buildListenerContext1();
     }
+
     private static SimpleObject buildListenerContext1() {
         SimpleObject context = new SimpleObject();
         String businessKey = SessionUtil.getText(SessionUtil.CURRENT_BUSINESS_KEY);
@@ -97,6 +106,7 @@ public class Spider implements Task {
         context.put(SessionUtil.CURRENT_DATA, map);
         return context;
     }
+
     public Spider addSpiderListener(SpiderListener observer) {
         if (observer == null) {
             return this;
@@ -118,27 +128,18 @@ public class Spider implements Task {
     public static Spider create() {
         Spider s = new Spider();
         s.getSite().setCycleRetryTimes(DEFAULT_RETRY_TIMES).setRetryTimes(3).setShareCache(true)
-                .setUserAgent(userAgents[(int)(Math.random() * 100 % (userAgents.length))]);
+                .setUserAgent(userAgents[(int) (Math.random() * 100 % (userAgents.length))]);
         return s;
     }
+
     public void addNotify(StatusTracker st) {
         if (notifyList == null) {
             notifyList = new ArrayList<>();
         }
         notifyList.add(st);
     }
-    public Spider addUrl(String... urls) {
-        return addUrl(null, urls);
-    }
 
-    @Override
-    public Spider addUrl(ProcessorObserver observer, String... urls) {
-        for (String url : urls) {
-            addRequest(new Request(url).addObjservers(observer));
-        }
-        signalNewUrl();
-        return this;
-    }
+
     public void start() {
         start(null, null);
     }
@@ -147,6 +148,7 @@ public class Spider implements Task {
     private Object paramObj;
     private SimpleObject startContext;
     private SimpleObject proxyContext;
+
     public void start(SpiderListener spiderListener, Object obj) {
         paramListener = spiderListener;
         paramObj = obj;
@@ -156,16 +158,16 @@ public class Spider implements Task {
     public void publishEvent(String event) {
         fireEvent(event, paramListener, 6, startContext, paramObj);
     }
+
     public void addClassificationStatus(String cls, String status) {
         clsStatusMap.put(cls, status);
     }
-    public void setReleaseProxy(boolean releaseProxy) {
-        this.releaseProxy = releaseProxy;
-    }
+
 
     public void addStage() {
-        stage ++;
+        stage++;
     }
+
     private void checkRunningStat() {
         while (true) {
             int statNow = stat.get();
@@ -177,12 +179,14 @@ public class Spider implements Task {
             }
         }
     }
+
     protected void initComponent() {
         if (downloader == null) {
             downloader = new HttpDownload();
         }
         startTime = new Date();
     }
+
     private void fireEvent(String event, SpiderListener listener, int step, SimpleObject contenxt, Object obj) {
         if (!CollectionUtils.isEmpty(spiderListeners)) {
             for (SpiderListener spiderListener : spiderListeners) {
@@ -191,9 +195,11 @@ public class Spider implements Task {
         }
         triggerEvent(event, listener, step, contenxt, obj);
     }
+
     private void triggerEvent(String event, SpiderListener listener, int step, SimpleObject contenxt, Object obj) {
         triggerEvent1(event, listener, step, contenxt, obj);
     }
+
     private void triggerEvent1(String event, SpiderListener listener, int step, SimpleObject contenxt, Object obj) {
         if (listener == null) {
             return;
@@ -220,45 +226,11 @@ public class Spider implements Task {
     }
 
 
-    private boolean isHighistPriority(Request request) {
-        long priority = -1 * request.getPriority();
-        boolean reQueue = false;
-        if (priority != 0) {
-            LongAdder la = urlMap.get(priority);
-            if (la != null) {
-                la.decrement();
-            }
-            Set<Long> removeSet = new HashSet<>();
-            Iterator<Long> iter = urlMap.keySet().iterator();
-            // 有序map循环
-            while ((iter.hasNext())) {
-                Long entry = iter.next();
-                // 如果权重不相等，说明有更高优先级的权重
-                if (priority != entry) {
-                    LongAdder longAdder = urlMap.get(entry);
-                    if (longAdder != null) {
-                        long pi = longAdder.longValue();
-                        if (pi > 0) {
-                            reQueue = true;
-                            break;
-                        } else if (pi == 0) {
-                            removeSet.add(entry);
-                        }
-                    }
-                } else {
-                    break;
-                }
-            }
-            for(Long e : removeSet) {
-                urlMap.remove(e);
-            }
 
-        }
-        return reQueue;
-    }
     private Map<String, String> clsStatusMap = new ConcurrentHashMap<>();
     private ReentrantLock newUrlLock = new ReentrantLock();
     private Condition newUrlCondition = newUrlLock.newCondition();
+
     private void waitNewUrl() {
         newUrlLock.lock();
         try {
@@ -270,7 +242,8 @@ public class Spider implements Task {
             newUrlLock.unlock();
         }
     }
-    private void signalNewUrl() {
+
+    public void signalNewUrl() {
         try {
             newUrlLock.lock();
             newUrlCondition.signalAll();
@@ -278,6 +251,7 @@ public class Spider implements Task {
             newUrlLock.unlock();
         }
     }
+
     private void start1(SpiderListener spiderListener, Object obj) {
         checkRunningStat();
         initComponent();
@@ -291,50 +265,55 @@ public class Spider implements Task {
             fireEvent(null, spiderListener, 1, spiderContext, obj);
 
 
-            Proxy host = null;
+            final Proxy[] host = {null};
 
             long lastIntervalTs = System.currentTimeMillis();
 
             while (!Thread.currentThread().isInterrupted() && stat.get() == STAT_RUNNING) {
                 try {
-                    Request request = Redis.getRequest("requestsQueue");
+//                    Request request = Redis.getRequest("requestsQueue");
+                    Request request = scheduleQueue.poll(this);
                     if (request == null) {
                         // wait until new url  added
                         waitNewUrl();
                         continue;
                     } else {
-                        if (sequentially) {
-                            if (isHighistPriority(request)) {
-                                // 如果更高权重的Request不为0，则把当前Request加入队列中，请求下一个
-                                addRequest(request);
-                                continue;
+                        crawlerThreadPool.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (spiderAdder.isSequentially()) {
+                                    if (spiderAdder.isHighistPriority(request)) {
+                                        // 如果更高权重的Request不为0，则把当前Request加入队列中，请求下一个
+                                        addRequest(request);
+                                        return;
+                                    }
+                                }
+                                Set<Map.Entry<String, String>> eset = clsStatusMap.entrySet();
+                                String status = null;
+                                String cls = "";
+                                // 如果Classification存在于clsStatusMap，则这个请求跳过
+                                for (Map.Entry<String, String> e : eset) {
+                                    if (request.isClassification(e.getKey())) {
+                                        cls = e.getKey();
+                                        status = e.getValue();
+                                        break;
+                                    }
+                                }
+                                if (status != null && CLASSFICATION_STATUS_REMOVE.equalsIgnoreCase(status)) {
+                                    logger.info(String.format("------%s----remove [%s] clf %s", request.getExtra("sequenceNo"), cls, request.getUrl()));
+                                    try {
+                                        request.notifyObserver(4, request, null);
+                                    } catch (Exception e) {
+                                        logger.error("notifyObserver when break request", e);
+                                    }
+                                    return;
+                                }
+                                int time = 0;
+                                int numProxy = 0;
+                                spiderContext.put(ProcessorObserver.KEY_REQUEST, request);
+                                host[0] = process(spiderListener, obj, spiderContext, host[0], localProxy, request, time, numProxy);
                             }
-                        }
-                        Set<Map.Entry<String, String>> eset = clsStatusMap.entrySet();
-                        String status = null;
-                        String cls = "";
-                        // 如果Classification存在于clsStatusMap，则这个请求跳过
-                        for(Map.Entry<String, String> e : eset) {
-                            if (request.isClassification(e.getKey())) {
-                                cls = e.getKey();
-                                status = e.getValue();
-                                break;
-                            }
-                        }
-                        if (status != null && CLASSFICATION_STATUS_REMOVE.equalsIgnoreCase(status)) {
-                            logger.info(String.format("------%s----remove [%s] clf %s", request.getExtra("sequenceNo"), cls, request.getUrl()));
-                            try {
-                                request.notifyObserver(4, request, null);
-                            } catch (Exception e) {
-                                logger.error("notifyObserver when break request", e);
-                            }
-                            continue;
-                        }
-
-                        int time = 0;
-                        int numProxy = 0;
-                        spiderContext.put(ProcessorObserver.KEY_REQUEST, request);
-                        host = process(spiderListener, obj, spiderContext, host, localProxy, request, time, numProxy);
+                        });
 
                     }
                 } catch (Exception e) {
@@ -363,11 +342,12 @@ public class Spider implements Task {
         }
         notifyList();
     }
+
     private void notifyList() {
         if (notifyList == null) {
             return;
         }
-        for(StatusTracker st : notifyList) {
+        for (StatusTracker st : notifyList) {
             try {
                 st.notifyStatus();
             } catch (Exception e) {
@@ -375,9 +355,11 @@ public class Spider implements Task {
             }
         }
     }
+
     public void close() {
         downloader.close();
     }
+
     protected void sleep(int time) {
         try {
             Thread.sleep(time);
@@ -385,8 +367,10 @@ public class Spider implements Task {
             e.printStackTrace();
         }
     }
+
     private int stage;
     private final AtomicLong pageCount = new AtomicLong(0);
+
     protected void processRequest(Request request) {
         downloader.download(request, this);
         sleep(site.getSleepTime() * stage);
@@ -394,6 +378,7 @@ public class Spider implements Task {
             sleep((int) (Math.random() * site.getRndSleepTime() + 1000) * (stage + 1));
         }
     }
+
     private Proxy process(SpiderListener spiderListener, Object obj, SimpleObject context, Proxy host, boolean localProxy, Request request, int time, int numProxy) {
         context.put(ProcessorObserver.KEY_REQUEST, request);
         request.setUseProxy(localProxy);
@@ -418,14 +403,12 @@ public class Spider implements Task {
         }
         return host;
     }
+
     @Override
     public String getUUID() {
         if (uuid != null) {
             return uuid;
         }
-//        if (site != null && !StringUtils.isNotBlank(site.getDomain())) {
-//            return site.getDomain();
-//        }
         uuid = UUID.randomUUID().toString();
         return uuid;
     }
@@ -435,42 +418,6 @@ public class Spider implements Task {
         return site;
     }
 
-
-    @Override
-    public Task addRequest(Request... requests) {
-        for (Request request : requests) {
-            addRequest(request);
-        }
-        return this;
-    }
-    private TreeMap<Long, LongAdder> urlMap = new TreeMap<>();
-    private boolean sequentially;
-
-
-    private RedisCacheUtil redisCacheUtil = new RedisCacheUtil();
-
-    private void addRequest(Request request) {
-
-        if (request != null && request.getUrl() != null) {
-
-            Redis.addRequests("requestsQueue",request);
-            if (request.getPriority() == 0) {
-                request.setPriority(defaultPriority);
-            }
-            if (request.getPriority() != 0) {
-                sequentially = true;
-                long priority = -1 * request.getPriority();
-                LongAdder i = urlMap.get(priority);
-                if (i == null) {
-                    i = new LongAdder();
-                    i.increment();
-                    urlMap.put(priority, i);
-                } else {
-                    i.increment();
-                }
-            }
-        }
-    }
 
 
     @Override
@@ -482,7 +429,8 @@ public class Spider implements Task {
     public boolean useProxy() {
         return false;
     }
-    private static String[] userAgents = new String[] {"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1",
+
+    private static String[] userAgents = new String[]{"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1",
             "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6",
             "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1090.0 Safari/536.6", "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/19.77.34.5 Safari/537.1",
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.9 Safari/536.5", "Mozilla/5.0 (Windows NT 6.0) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.36 Safari/536.5",

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
  * @Author wangyue
  * @Date 15:06
  */
-public abstract class AbstractDownloader implements Downloader {
+public abstract class AbstractDownloader implements Downloader{
     protected Logger logger = LoggerFactory.getLogger("Downloader");
     protected int sleepTime = 0;
 

@@ -1,5 +1,6 @@
 package com.bolo.crawler.utils;
 
+import java.io.Serializable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -7,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @Author wangyue
  * @Date 15:10
  */
-public class StatusTracker {
+public class StatusTracker{
     public final static int STAT_INIT = 0;
     public final static int STAT_STOPPED = 1;
     public final static int STAT_STOPPED_FAIL = 2;

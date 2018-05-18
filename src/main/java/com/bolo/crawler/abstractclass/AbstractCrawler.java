@@ -1,9 +1,6 @@
 package com.bolo.crawler.abstractclass;
 
-import com.bolo.crawler.entitys.Request;
-import com.bolo.crawler.entitys.SimpleObject;
-import com.bolo.crawler.entitys.SimpleValue;
-import com.bolo.crawler.entitys.Spider;
+import com.bolo.crawler.entitys.*;
 import com.bolo.crawler.interfaceclass.ProcessorObserver;
 import com.bolo.crawler.liseners.StatisticsSpiderListener;
 import com.bolo.crawler.poolmanager.SpiderManager;
@@ -11,6 +8,7 @@ import com.bolo.crawler.utils.ContextUtil;
 import com.bolo.crawler.utils.CookieStoreUtil;
 import com.bolo.crawler.utils.Statistics;
 import com.bolo.crawler.utils.StatusTracker;
+import com.bolo.test.crawler.CrawlerObserver;
 import com.bolo.util.ArrayUtil;
 import com.bolo.util.DateUtils;
 import com.bolo.util.JSUtil;
@@ -28,10 +26,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Date;
@@ -44,7 +39,9 @@ import java.util.Map;
  */
 @Getter
 @Slf4j
-public abstract class AbstractCrawler extends StatusTracker {
+public abstract class AbstractCrawler extends StatusTracker implements Serializable{
+
+    private static final long serialVersionUID = 6881426866072386992L;
     public static final int LOGIN_SUC = 1;
     protected Logger logger = LoggerFactory.getLogger("Crawler");
     //临时数据
@@ -52,6 +49,7 @@ public abstract class AbstractCrawler extends StatusTracker {
     //和登录状态同时保存的数据
     protected SimpleObject entity = new SimpleObject();
     protected Spider spider;
+    protected SpiderAdder spiderAdder;
     private boolean test;
     protected HttpHost httpHost;
     protected long timeMillis = System.currentTimeMillis();
@@ -60,9 +58,29 @@ public abstract class AbstractCrawler extends StatusTracker {
     @Setter
     protected String certId;
 
+    /**
+     * 传递当前crawler和spider给下一层
+     * @param objserver
+     * @return
+     */
+    protected CrawlerObserver build(CrawlerObserver objserver) {
+        objserver.setCrawler(this);
+        return objserver;
+    }
+    public void initForTest() throws Exception {
+        spider.setDestroyWhenExit(false);
+        setTest(true);
+    }
+
     public AbstractCrawler() {
         httpHost = new HttpHost("127.0.0.1", 1080);
     }
+
+    public AbstractCrawler(Spider spider) {
+        this.spider = spider;
+        this.spiderAdder = spider.getSpiderAdder();
+    }
+
     public long timeMillis() {
         return System.currentTimeMillis();
     }
@@ -121,7 +139,7 @@ public abstract class AbstractCrawler extends StatusTracker {
             }
 
             setRequest(param, headers, req, context);
-            spider.addRequest(req);
+            spiderAdder.addRequest(req);
         }
     }
     protected void postUrl(String url, String referer, String[][] nameValuePairs, ProcessorObserver observer) {
@@ -150,7 +168,7 @@ public abstract class AbstractCrawler extends StatusTracker {
             }
 
             setRequest(param, headers, req, context);
-            spider.addRequest(req);
+            spiderAdder.addRequest(req);
         }
     }
     private void setRequest(Object[] param, String[][] headers, Request req, SimpleObject context) {
@@ -287,7 +305,7 @@ public abstract class AbstractCrawler extends StatusTracker {
 
 
         });
-        spider.addRequest(req);
+        spiderAdder.addRequest(req);
         //latch.await();
 
         return key;// + InfoUtil.getInstance().getInfo("road", "server.img.auth.code.suffix");
@@ -405,7 +423,7 @@ public abstract class AbstractCrawler extends StatusTracker {
                 //logger.info("---save img end time(s) :" + (System.currentTimeMillis() - sts) / 1000d);
             }
         });
-        spider.addRequest(req);
+        spiderAdder.addRequest(req);
         //latch.await();
         data.put(destfilename, "imgName");
         return suffix + "/"+ picName;
@@ -522,18 +540,6 @@ public abstract class AbstractCrawler extends StatusTracker {
         return array;
     }
 
-    public void releaseProxy() {
-        spider.setReleaseProxy(true);
-    }
-    public void removeProxy() {
-        spider.setRemoveProxy(true);
-    }
-    public void removeProxy(long recoverTime) {
-        spider.setRemoveProxy(true);
-        if(recoverTime > 0) {
-            spider.setRecoverTime(0);
-        }
-    }
     public void destory() {
         data.clear();
         entity.clear();

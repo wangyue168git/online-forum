@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.apache.commons.httpclient.HttpHost;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -16,7 +17,7 @@ import java.util.*;
  */
 @Getter
 @Setter
-public class Site {
+public class Site implements Serializable{
 
     public static int DEFAULT_TIME_OUT = 10000;
     private String domain;

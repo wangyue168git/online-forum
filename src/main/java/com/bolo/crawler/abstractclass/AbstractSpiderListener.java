@@ -5,11 +5,14 @@ import com.bolo.crawler.interfaceclass.SpiderListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 /**
  * @Author wangyue
  * @Date 16:47
  */
-public abstract class AbstractSpiderListener implements SpiderListener {
+public abstract class AbstractSpiderListener implements SpiderListener,Serializable{
+    private static final long serialVersionUID = 6529685098267757691L;
     protected SimpleObject context;
     protected Logger logger = LoggerFactory.getLogger(getClass());
     protected long interval = -1;

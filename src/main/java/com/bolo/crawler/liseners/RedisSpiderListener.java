@@ -14,13 +14,14 @@ import com.bolo.util.RobotUtil;
 import org.apache.http.client.CookieStore;
 import org.apache.http.impl.client.BasicCookieStore;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * @Author wangyue
  * @Date 16:48
  */
-public class RedisSpiderListener  extends AbstractSpiderListener {
+public class RedisSpiderListener  extends AbstractSpiderListener{
     private static final String KEY_REDIS_COOKIES = "RedisSpiderListener.cookies";
     public static final String KEY_CACHE_DATA = "RedisSpiderListener.data";
     public static final String KEY_PROXY_HOLDER = "RedisSpiderListener.proxy";

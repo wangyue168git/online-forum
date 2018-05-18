@@ -2,8 +2,7 @@ package com.bolo.crawler.queue;
 
 import com.bolo.crawler.entitys.Request;
 import com.bolo.crawler.interfaceclass.Scheduler;
-import javafx.concurrent.Task;
-
+import com.bolo.crawler.interfaceclass.Task;
 
 
 import java.util.concurrent.BlockingQueue;
