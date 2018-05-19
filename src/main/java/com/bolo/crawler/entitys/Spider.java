@@ -347,7 +347,11 @@ public class Spider extends AbstractTask implements Serializable {
 
     public void stopSpider(){
         logger.info("no task in the queue,and spider stop....");
-        stat.set(STAT_STOPPED);
+        if (stat.compareAndSet(STAT_RUNNING, STAT_STOPPED)) {
+            logger.info("Crawler " + getUUID() + " stop success!");
+        } else {
+            logger.info("Crawler " + getUUID() + " stop fail!");
+        }
     }
 
     private void notifyList() {
