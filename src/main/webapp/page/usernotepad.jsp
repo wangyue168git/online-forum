@@ -35,10 +35,12 @@ body {
      <div>
          <ul class="nav navbar-nav">
              <li class="active"><a href="#">留言板</a></li>
+			 <li class="active"><a href="zhongzi">种子分享</a></li>
              <li class="dropdown">
                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                                          个人中心  <b class="caret"></b>
                  </a>
+
                  <ul class="dropdown-menu">
                      <li><a href="userselectmine">我的留言</a></li>
                      <li><a href="edituser/${id}">修改密码</a></li>

@@ -291,26 +291,31 @@ public class Spider extends AbstractTask implements Serializable {
                                         return;
                                     }
                                 }
-//                                Set<Map.Entry<String, String>> eset = clsStatusMap.entrySet();
-//                                String status = null;
-//                                String cls = "";
-                                // 如果Classification存在于clsStatusMap，则这个请求跳过
-//                                for (Map.Entry<String, String> e : eset) {
-//                                    if (request.isClassification(e.getKey())) {
-//                                        cls = e.getKey();
-//                                        status = e.getValue();
-//                                        break;
-//                                    }
-//                                }
-//                                if (status != null && CLASSFICATION_STATUS_REMOVE.equalsIgnoreCase(status)) {
-//                                    logger.info(String.format("------%s----remove [%s] clf %s", request.getExtra("sequenceNo"), cls, request.getUrl()));
-//                                    try {
-//                                        request.notifyObserver(4, request, null);
-//                                    } catch (Exception e) {
-//                                        logger.error("notifyObserver when break request", e);
-//                                    }
-//                                    return;
-//                                }
+                                /*
+                                    这部分主要是对某些类型的请求进行筛选，并remove掉对应type的请求
+                                    如果Classification存在于clsStatusMap，则这个请求跳过
+                                 */
+                                Set<Map.Entry<String, String>> eset = clsStatusMap.entrySet();
+                                String status = null;
+                                String cls = "";
+                                for (Map.Entry<String, String> e : eset) {
+                                    if (request.isClassification(e.getKey())) {
+                                        cls = e.getKey();
+                                        status = e.getValue();
+                                        break;
+                                    }
+                                }
+                                if (status != null && CLASSFICATION_STATUS_REMOVE.equalsIgnoreCase(status)) {
+                                    logger.info(String.format("------%s----remove [%s] clf %s", request.getExtra("sequenceNo"), cls, request.getUrl()));
+                                    try {
+                                        request.notifyObserver(4, request, null);
+                                    } catch (Exception e) {
+                                        logger.error("notifyObserver when break request", e);
+                                    }
+                                    return;
+                                }
+
+                                //实际请求部分
                                 spiderContext.put(ProcessorObserver.KEY_REQUEST, request);
                                 host[0] = process(spiderListener, obj, spiderContext, host[0], localProxy, request, 0, 0);
                             }

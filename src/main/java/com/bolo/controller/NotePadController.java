@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +18,7 @@ import com.bolo.redis.RedisCacheUtil;
 import com.bolo.test.auther.AuthManage;
 
 
+import com.bolo.test.crawler.ZhongZiCrawler;
 import com.bolo.test.nettys.server.NettyTCPServer;
 import com.bolo.test.reqlimit.RequestLimit;
 
@@ -326,6 +328,17 @@ public class NotePadController {
         }else {
             return "page/ex_erro.jsp";
         }
+    }
+
+    @RequestMapping(value="zhongzi",method = RequestMethod.GET)
+    public String getZZ(HttpServletRequest req,HttpServletResponse resp,ModelMap model){
+	    StringBuilder stringBuilder = new StringBuilder();
+	    for (Map.Entry<String,String> entry : ZhongZiCrawler.map.entrySet()){
+	        stringBuilder.append("<pre>" + entry.getKey() + "&#9;" + "<a href=\"" + "https://www.zhongziso.net"
+                    +entry.getValue() + "\">" +entry.getValue()+"</a>"+ "</pre>" + "<br>");
+        }
+        model.addAttribute("zhongzi",stringBuilder);
+        return "page/zhongzi.jsp";
     }
 
 	private void SessionAddId(HttpServletRequest req){

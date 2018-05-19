@@ -1,8 +1,11 @@
 package com.bolo.test.crontasks;
 
+import com.bolo.crawler.entitys.Spider;
+import com.bolo.crawler.poolmanager.SpiderManager;
 import com.bolo.entity.User;
 import com.bolo.redis.RedisCacheUtil;
 import com.bolo.service.UserService;
+import com.bolo.test.crawler.ZhongZiCrawler;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +60,16 @@ public class CronTask {
             logger.info(jobContent + "{}","····");
         }
 
+    }
+
+    @Scheduled(initialDelay = 5000,fixedDelay = 60000*4320)
+    public void crawler(){
+        Spider spider = SpiderManager.getInstance().createSpider("test", "aaa");
+        ZhongZiCrawler crawler = new ZhongZiCrawler(spider);
+        ZhongZiCrawler.map.clear();
+        crawler.getZhongZi();
+        spider.start();
+        logger.info("抓取种子数量：" +ZhongZiCrawler.map.size());
     }
 
     public void setJobContent(String jobContent) {
