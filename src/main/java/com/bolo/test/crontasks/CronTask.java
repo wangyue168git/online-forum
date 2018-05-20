@@ -64,7 +64,7 @@ public class CronTask {
 
     @Scheduled(initialDelay = 5000,fixedDelay = 60000*4320)
     public void crawler(){
-        Spider spider = SpiderManager.getInstance().createSpider("test", "aaa");
+        Spider spider = SpiderManager.getInstance().createSpider("test");
         ZhongZiCrawler crawler = new ZhongZiCrawler(spider);
         ZhongZiCrawler.map.clear();
         crawler.getZhongZi();
