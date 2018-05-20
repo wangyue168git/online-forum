@@ -39,11 +39,11 @@ public class SpiderManager {
         }
     }
 
-    public Spider createSpider(String user, String type){
-        return createSpider1(user, type);
+    public Spider createSpider(String user){
+        return createSpider1(user);
     }
 
-    private Spider createSpider1(String user, String type) {
+    private Spider createSpider1(String user) {
         Spider spider = Spider.create();
         spider.addSpiderListener(new RedisSpiderListener(Spider.buildListenerContext()));
         if (getActivateStatistics()) {

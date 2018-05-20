@@ -66,9 +66,9 @@ public class ZhongZiCrawler extends AbstractCrawler{
 
     public static void main(String[] args) throws Exception {
 
-        Spider spider = SpiderManager.getInstance().createSpider("test", "aaa");
+        Spider spider = SpiderManager.getInstance().createSpider("test");
         ZhongZiCrawler crawler = new ZhongZiCrawler(spider);
-        Spider spider1 = SpiderManager.getInstance().createSpider("te1st", "1aaa");
+        Spider spider1 = SpiderManager.getInstance().createSpider("te1st");
 
         crawler.initForTest();
         crawler.getZhongZi();
