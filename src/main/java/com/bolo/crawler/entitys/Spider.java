@@ -281,16 +281,17 @@ public class Spider extends AbstractTask implements Serializable {
                         }
                         continue;
                     } else {
+                        if (spiderAdder.isSequentially()) {
+                            if (spiderAdder.isHighistPriority(request)) {
+                                // 如果更高权重的Request不为0，则把当前Request加入队列中，请求下一个
+                                addRequest(request);
+                                continue;
+                            }
+                        }
+
                         crawlerThreadPool.execute(new Runnable() {
                             @Override
                             public void run() {
-                                if (spiderAdder.isSequentially()) {
-                                    if (spiderAdder.isHighistPriority(request)) {
-                                        // 如果更高权重的Request不为0，则把当前Request加入队列中，请求下一个
-                                        addRequest(request);
-                                        return;
-                                    }
-                                }
                                 /*
                                     这部分主要是对某些类型的请求进行筛选，并remove掉对应type的请求
                                     如果Classification存在于clsStatusMap，则这个请求跳过
