@@ -276,7 +276,7 @@ public class Spider extends AbstractTask implements Serializable {
                         // wait until new url  added
                         beforewait = System.currentTimeMillis();
                         waitNewUrl();
-                        if(System.currentTimeMillis() - beforewait >= 30000){
+                        if(System.currentTimeMillis() - beforewait >= emptySleepTime){
                             stopSpider();
                         }
                         continue;
@@ -389,11 +389,13 @@ public class Spider extends AbstractTask implements Serializable {
     private final AtomicLong pageCount = new AtomicLong(0);
 
     protected void processRequest(Request request) {
-        downloader.download(request, this);
-        sleep(site.getSleepTime() * stage);
+        //请求错开
         if (site.getRndSleepTime() > 0) {
             sleep((int) (Math.random() * site.getRndSleepTime() + 1000) * (stage + 1));
         }
+        downloader.download(request, this);
+        //减慢访问速度
+        sleep(site.getSleepTime() * stage);
     }
 
     private Proxy process(SpiderListener spiderListener, Object obj, SimpleObject context, Proxy host, boolean localProxy, Request request, int time, int numProxy) {
