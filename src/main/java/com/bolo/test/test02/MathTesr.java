@@ -290,6 +290,30 @@ public class MathTesr {
         return false;
     }
 
+    /**
+     * 空间换时间
+     * O(1)实现max()方法。
+     * 也可用链表记录最大值变化。
+     */
+    public class MyStack{
+        Stack<Integer> stack1;
+        Stack<Integer> stack2;
+        public void push(int i){
+            if (i >= stack2.peek()){
+                stack2.push(i);
+            }
+            stack1.push(i);
+        }
+        public int pop(){
+            if (stack1.peek() == stack2.peek())
+                stack2.pop();
+            return stack1.pop();
+        }
+        public int max(){
+            return stack2.peek();
+        }
+    }
+
 
 
 
