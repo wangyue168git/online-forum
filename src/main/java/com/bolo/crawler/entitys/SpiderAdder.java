@@ -22,12 +22,12 @@ import java.util.concurrent.atomic.LongAdder;
 public class SpiderAdder extends AbstractTask{
 
 
-    protected static ScheduleQueue scheduleQueue = ScheduleQueueManager.getScheduleQueue();
+    protected ScheduleQueue scheduleQueue = ScheduleQueueManager.getScheduleQueue();
     public static boolean sequentially;
-    private static final TreeMap<Long, LongAdder> urlMap = new TreeMap<>();
-    protected static final int defaultPriority = 0;
+    private  TreeMap<Long, LongAdder> urlMap = ScheduleQueueManager.getUrlMap();
 
-    private static AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+    protected static final int defaultPriority = 0;
+    private static final AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
     protected Spider spider;
     protected String uuid;
@@ -101,7 +101,7 @@ public class SpiderAdder extends AbstractTask{
         }
     }
 
-    public static boolean isHighistPriority(Request request) {
+    public boolean isHighistPriority(Request request) {
         long priority = -1 * request.getPriority();
         boolean reQueue = false;
         if (priority != 0) {
@@ -112,32 +112,28 @@ public class SpiderAdder extends AbstractTask{
             Set<Long> removeSet = new HashSet<>();
             Iterator<Long> iter = urlMap.keySet().iterator();
 
-            while (true){
-                if (atomicBoolean.compareAndSet(false,true)) {
+            synchronized (atomicBoolean){
                     // 有序map循环
-                    while ((iter.hasNext())) {
-                        Long entry = iter.next();
-                        // 如果权重不相等，说明有更高优先级的权重
-                        if (priority != entry) {
-                            LongAdder longAdder = urlMap.get(entry);
-                            if (longAdder != null) {
-                                long pi = longAdder.longValue();
-                                if (pi > 0) {
-                                    reQueue = true;
-                                    break;
-                                } else if (pi == 0) {
-                                    removeSet.add(entry);
-                                }
+                while ((iter.hasNext())) {
+                    Long entry = iter.next();
+                    // 如果权重不相等，说明有更高优先级的权重
+                    if (priority != entry) {
+                        LongAdder longAdder = urlMap.get(entry);
+                        if (longAdder != null) {
+                            long pi = longAdder.longValue();
+                            if (pi > 0) {
+                                reQueue = true;
+                                break;
+                            } else if (pi == 0) {
+                                removeSet.add(entry);
                             }
-                        } else {
-                            break;
                         }
+                    } else {
+                        break;
                     }
-                    for (Long e : removeSet) {
-                        urlMap.remove(e);
-                    }
-                    atomicBoolean.set(false);
-                    break;
+                }
+                for (Long e : removeSet) {
+                    urlMap.remove(e);
                 }
             }
 
