@@ -2,12 +2,15 @@ package com.bolo.crawler.entitys;
 
 import com.bolo.crawler.abstractclass.AbstractTask;
 import com.bolo.crawler.httpclient.HttpDownload;
+import com.bolo.crawler.interfaceclass.Downloader;
+import com.bolo.crawler.interfaceclass.ProcessorObserver;
+import com.bolo.crawler.interfaceclass.SpiderListener;
 import com.bolo.crawler.poolmanager.CountableThreadPool;
 import com.bolo.crawler.poolmanager.ThreadPoolManager;
 import com.bolo.crawler.queue.ScheduleQueue;
 import com.bolo.crawler.queue.ScheduleQueueManager;
 import com.bolo.crawler.utils.StatusTracker;
-import com.bolo.crawler.interfaceclass.*;
+
 import com.bolo.crawler.utils.SessionUtil;
 
 
@@ -263,8 +266,6 @@ public class Spider extends AbstractTask implements Serializable {
             spiderContext.put(ProcessorObserver.KEY_TASK, this);
             fireEvent(null, spiderListener, 1, spiderContext, obj);
 
-
-            final Proxy[] host = {null};
             long beforewait;
             long lastIntervalTs = System.currentTimeMillis();
 
@@ -318,7 +319,7 @@ public class Spider extends AbstractTask implements Serializable {
 
                                 //实际请求部分
                                 spiderContext.put(ProcessorObserver.KEY_REQUEST, request);
-                                host[0] = process(spiderListener, obj, spiderContext, host[0], localProxy, request, 0, 0);
+                                process(spiderListener, obj, spiderContext, localProxy, request, 0, 0);
                             }
                         });
 
@@ -398,7 +399,7 @@ public class Spider extends AbstractTask implements Serializable {
         sleep(site.getSleepTime() * stage);
     }
 
-    private Proxy process(SpiderListener spiderListener, Object obj, SimpleObject context, Proxy host, boolean localProxy, Request request, int time, int numProxy) {
+    private void process(SpiderListener spiderListener, Object obj, SimpleObject context, boolean localProxy, Request request, int time, int numProxy) {
         context.put(ProcessorObserver.KEY_REQUEST, request);
         request.setUseProxy(localProxy);
         final Request requestFinal = request;
@@ -420,7 +421,6 @@ public class Spider extends AbstractTask implements Serializable {
             pageCount.incrementAndGet();
             signalNewUrl();
         }
-        return host;
     }
 
     @Override
