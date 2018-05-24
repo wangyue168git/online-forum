@@ -42,14 +42,13 @@ import java.util.Map;
 public abstract class AbstractCrawler extends StatusTracker implements Serializable{
 
     private static final long serialVersionUID = 6881426866072386992L;
-    public static final int LOGIN_SUC = 1;
     protected Logger logger = LoggerFactory.getLogger("Crawler");
     //临时数据
     protected SimpleObject data = new SimpleObject();
     //和登录状态同时保存的数据
     protected SimpleObject entity = new SimpleObject();
     protected Spider spider;
-    protected SpiderAdder spiderAdder;
+    protected SpiderAdder spiderAdder = SpiderAdder.getInstance();
     private boolean test;
     protected HttpHost httpHost;
     protected long timeMillis = System.currentTimeMillis();
@@ -78,7 +77,6 @@ public abstract class AbstractCrawler extends StatusTracker implements Serializa
 
     public AbstractCrawler(Spider spider) {
         this.spider = spider;
-        this.spiderAdder = spider.getSpiderAdder();
     }
 
     public long timeMillis() {

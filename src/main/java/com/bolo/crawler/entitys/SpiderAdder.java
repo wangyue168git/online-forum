@@ -8,10 +8,18 @@ import com.bolo.crawler.queue.ScheduleQueue;
 import com.bolo.crawler.queue.ScheduleQueueManager;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static com.bolo.crawler.entitys.Spider.emptySleepTime;
 
 /**
  * @Author wangyue
@@ -21,20 +29,49 @@ import java.util.concurrent.atomic.LongAdder;
 @Getter
 public class SpiderAdder extends AbstractTask{
 
-
+    protected Logger logger = LoggerFactory.getLogger("SpiderAdder");
     protected ScheduleQueue scheduleQueue = ScheduleQueueManager.getScheduleQueue();
-    public static boolean sequentially;
     private  TreeMap<Long, LongAdder> urlMap = ScheduleQueueManager.getUrlMap();
-
     protected static final int defaultPriority = 0;
-    private static final AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+    public static boolean sequentially;
+    private static final SpiderAdder spiderAdder = new SpiderAdder();
+
+    //多监听线程间通信，共享的condition，统一的阻塞队列
+    private static final ReentrantLock newUrlLock = new ReentrantLock();
+    private static final Condition newUrlCondition = newUrlLock.newCondition();
 
     protected Spider spider;
     protected String uuid;
 
+    public static SpiderAdder getInstance(){
+        return spiderAdder;
+    }
+
+    private SpiderAdder(){}
 
     public SpiderAdder(Spider spider){
         this.spider = spider;
+    }
+
+    protected void waitNewUrl() {
+        newUrlLock.lock();
+        try {
+            //double check
+            newUrlCondition.await(emptySleepTime, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            logger.warn("waitNewUrl - interrupted, error {}", e);
+        } finally {
+            newUrlLock.unlock();
+        }
+    }
+
+    public void signalNewUrl() {
+        try {
+            newUrlLock.lock();
+            newUrlCondition.signalAll();
+        } finally {
+            newUrlLock.unlock();
+        }
     }
 
     @Override
@@ -48,7 +85,7 @@ public class SpiderAdder extends AbstractTask{
 
     @Override
     public Site getSite() {
-        return spider.getSite();
+        return spider == null ? null : spider.getSite();
     }
 
     @Override
@@ -61,7 +98,7 @@ public class SpiderAdder extends AbstractTask{
         for (String url : urls) {
             addRequest(new Request(url).addObjservers(observer));
         }
-        spider.signalNewUrl();
+        signalNewUrl();
         return this;
     }
 
@@ -70,7 +107,7 @@ public class SpiderAdder extends AbstractTask{
         for (Request request : requests) {
             addRequest(request);
         }
-        spider.signalNewUrl();
+        signalNewUrl();
         return this;
     }
 

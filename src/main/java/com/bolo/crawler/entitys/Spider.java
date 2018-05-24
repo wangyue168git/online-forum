@@ -51,8 +51,6 @@ public class Spider extends AbstractTask implements Serializable {
 
     protected Logger logger = LoggerFactory.getLogger("Task");
 
-    protected int threadNum = 1;
-
     protected volatile AtomicInteger stat = new AtomicInteger(STAT_INIT);
 
     protected boolean exitWhenComplete = true;
@@ -67,9 +65,6 @@ public class Spider extends AbstractTask implements Serializable {
     protected boolean useProxy = false;
 
     protected boolean localProxy = false;
-
-    @Setter
-    protected boolean removeProxy = false;
     @Setter
     protected long recoverTime = -1L;
 
@@ -86,13 +81,9 @@ public class Spider extends AbstractTask implements Serializable {
     private Date startTime;
     private Site site = Site.me();
 
-    private SpiderAdder spiderAdder = new SpiderAdder(this);
+    private SpiderAdder spiderAdder = SpiderAdder.getInstance();
 
-
-    private SimpleObject context = new SimpleObject();
-    private int emptySleepTime = 30000;//30000;
-
-
+    protected static int emptySleepTime = 30000;//30000;
 
     protected String uuid;
 
@@ -122,7 +113,6 @@ public class Spider extends AbstractTask implements Serializable {
 
     protected String sequenceNo = "";
     public String certId = "";
-    public boolean spiderLastStep = false;
 
     public static int DEFAULT_RETRY_TIMES = 2;
     public static int DEFAULT_SITE_RETRY_TIMES = 3;
@@ -149,7 +139,6 @@ public class Spider extends AbstractTask implements Serializable {
     private SpiderListener paramListener;
     private Object paramObj;
     private SimpleObject startContext;
-    private SimpleObject proxyContext;
 
     public void start(SpiderListener spiderListener, Object obj) {
         paramListener = spiderListener;
@@ -230,29 +219,6 @@ public class Spider extends AbstractTask implements Serializable {
 
 
     private Map<String, String> clsStatusMap = new ConcurrentHashMap<>();
-    private static ReentrantLock newUrlLock = new ReentrantLock();
-    private static Condition newUrlCondition = newUrlLock.newCondition();
-
-    private void waitNewUrl() {
-        newUrlLock.lock();
-        try {
-            //double check
-            newUrlCondition.await(emptySleepTime, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            logger.warn("waitNewUrl - interrupted, error {}", e);
-        } finally {
-            newUrlLock.unlock();
-        }
-    }
-
-    public void signalNewUrl() {
-        try {
-            newUrlLock.lock();
-            newUrlCondition.signalAll();
-        } finally {
-            newUrlLock.unlock();
-        }
-    }
 
     private void start1(SpiderListener spiderListener, Object obj) {
         checkRunningStat();
@@ -276,13 +242,13 @@ public class Spider extends AbstractTask implements Serializable {
                     if (request == null) {
                         // wait until new url  added
                         beforewait = System.currentTimeMillis();
-                        waitNewUrl();
+                        spiderAdder.waitNewUrl();
                         if(System.currentTimeMillis() - beforewait >= emptySleepTime){
                             stopSpider();
                         }
                         continue;
                     } else {
-                        if (SpiderAdder.sequentially) {
+                        if (spiderAdder.sequentially) {
                             if (spiderAdder.isHighistPriority(request)) {
                                 // 如果更高权重的Request不为0，则把当前Request加入队列中，请求下一个
                                 addRequest(request);
@@ -420,7 +386,7 @@ public class Spider extends AbstractTask implements Serializable {
             }
         } finally {
             pageCount.incrementAndGet();
-            signalNewUrl();
+            spiderAdder.signalNewUrl();
         }
     }
 
