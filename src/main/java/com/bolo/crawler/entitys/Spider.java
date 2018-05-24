@@ -230,8 +230,8 @@ public class Spider extends AbstractTask implements Serializable {
 
 
     private Map<String, String> clsStatusMap = new ConcurrentHashMap<>();
-    private ReentrantLock newUrlLock = new ReentrantLock();
-    private Condition newUrlCondition = newUrlLock.newCondition();
+    private static ReentrantLock newUrlLock = new ReentrantLock();
+    private static Condition newUrlCondition = newUrlLock.newCondition();
 
     private void waitNewUrl() {
         newUrlLock.lock();
