@@ -296,8 +296,8 @@ public class MathTesr {
      * 也可用链表记录最大值变化。
      */
     public class MyStack{
-        Stack<Integer> stack1;
-        Stack<Integer> stack2;
+        Stack<Integer> stack1 = new Stack<>();
+        Stack<Integer> stack2 = new Stack<>();
         public void push(int i){
             if (i >= stack2.peek()){
                 stack2.push(i);
@@ -315,10 +315,30 @@ public class MathTesr {
     }
 
 
+    /**
+     * 插入排序
+     * 将一个元素插入到已经有序的数组中，在初始时未知是否存在有序的数据，因此将元素的第一个元素看成是有序的，
+     * 与有序的数组进行比较，比它大则直接放入，比它小则移动数组元素的位置，找到合适的位置插入
+     * 当只有一个数时，则不需要插入了，因此需要n-1趟排序，比如10个数，需要9趟排序
+     *
+     * 一个for循环内嵌一个while循环实现，
+     * 外层for循环控制需要排序的趟数，
+     * while循环找到合适的插入位置(并且插入的位置不能小于0)
+     * @param arrays
+     */
+    public void insertSort(int[] arrays){
+        int temp;
 
-
-
-
+        for (int i = 1; i < arrays.length; i++){
+            temp = arrays[i];
+            int j = i-1;
+            while (j >= 0 && arrays[j] > temp){
+                arrays[j+1] = arrays[j];
+                j--;
+            }
+            arrays[j+1] = temp;
+        }
+    }
 
 
 

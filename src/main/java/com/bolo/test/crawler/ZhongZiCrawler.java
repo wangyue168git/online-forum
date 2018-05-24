@@ -1,6 +1,7 @@
 package com.bolo.test.crawler;
 
 import com.bolo.crawler.abstractclass.AbstractCrawler;
+import com.bolo.crawler.entitys.Request;
 import com.bolo.crawler.entitys.SimpleObject;
 import com.bolo.crawler.entitys.Spider;
 import com.bolo.crawler.poolmanager.SpiderManager;
@@ -23,8 +24,11 @@ public class ZhongZiCrawler extends AbstractCrawler{
 
 
     public ZhongZiCrawler(Spider spider){
-       super(spider);
-       this.spider.getSite().setRetryTimes(1);
+        super(spider);
+        spider.getSite().setRetryTimes(1);
+        spider.getSite().setRndSleepTime(2000);
+
+
     }
 
 
@@ -35,16 +39,20 @@ public class ZhongZiCrawler extends AbstractCrawler{
             public void afterRequest(SimpleObject context) throws Exception {
                 Document document = ContextUtil.getDocumentOfContent(context);
                 Elements elements = document.select("div.search-item").first().select("a");
-               for(int i = 0; i < elements.size()/5; i++){
+                SimpleObject context1 = new SimpleObject();
+                context1.put(Request.KEY_PRIORITY,100);
+
+               for(int i = 0; i < elements.size()/2; i++){
                     Element element = elements.get(i);
                     String href = element.attr("href");
                     String title = element.attr("title");
-                    getUrl("https://www.zhongziso.net" + href, null, build(new CrawlerObserver() {
+                    getUrl("https://www.zhongziso.net" + href, null,null,null, build(new CrawlerObserver() {
                         @Override
                         public void afterRequest(SimpleObject context) throws Exception {
                             Document document1 = ContextUtil.getDocumentOfContent(context);
                             Elements elements1 = document1.select("div#content").first().select("h3");
                             for (Element element1 : elements1){
+
                                 String url = element1.select("a").first().attr("href");
                                 getUrl("https://www.zhongziso.net" + url, null, build(new CrawlerObserver() {
                                     @Override
@@ -57,7 +65,7 @@ public class ZhongZiCrawler extends AbstractCrawler{
                                 }));
                             }
                         }
-                    }));
+                    }),context1);
                 }
 
             }
@@ -69,12 +77,16 @@ public class ZhongZiCrawler extends AbstractCrawler{
         Spider spider = SpiderManager.getInstance().createSpider("test");
         ZhongZiCrawler crawler = new ZhongZiCrawler(spider);
         Spider spider1 = SpiderManager.getInstance().createSpider("te1st");
-
-        crawler.initForTest();
+        long before = System.currentTimeMillis();
+//        crawler.initForTest();
         crawler.getZhongZi();
-        spider.start();
+        SpiderManager.getInstance().startSpider(spider,null,crawler);
+        SpiderManager.getInstance().startSpider(spider1,null,crawler);
+//        spider.start();
 //        spider1.start();
+        long after = System.currentTimeMillis();
         System.out.println(ZhongZiCrawler.map.size());
+        System.out.println(after-before);
 //        crawler.destory();
 //        System.out.println(ThreadPoolManager.getCrawlerThreadPool().isShutdown());
 //        ThreadPoolManager.getCrawlerThreadPool().shutdown();

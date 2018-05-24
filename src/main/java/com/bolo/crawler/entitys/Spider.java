@@ -282,8 +282,8 @@ public class Spider extends AbstractTask implements Serializable {
                         }
                         continue;
                     } else {
-                        if (spiderAdder.isSequentially()) {
-                            if (spiderAdder.isHighistPriority(request)) {
+                        if (SpiderAdder.sequentially) {
+                            if (SpiderAdder.isHighistPriority(request)) {
                                 // 如果更高权重的Request不为0，则把当前Request加入队列中，请求下一个
                                 addRequest(request);
                                 continue;
