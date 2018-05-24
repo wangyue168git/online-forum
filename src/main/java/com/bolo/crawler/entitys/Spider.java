@@ -337,6 +337,7 @@ public class Spider extends AbstractTask implements Serializable {
         } catch (Exception e) {
             logger.error("start spider", e);
         }
+        //监听等待30秒后结束，开始后续保存数据操作
         fireEvent(null, spiderListener, 4, spiderContext, obj);
         if (!noLogger) {
             logger.info("Spider " + getUUID() + " end!");

@@ -112,7 +112,7 @@ public class SpiderAdder extends AbstractTask{
             Set<Long> removeSet = new HashSet<>();
             Iterator<Long> iter = urlMap.keySet().iterator();
 
-            synchronized (atomicBoolean){
+            synchronized (SpiderAdder.class){
                     // 有序map循环
                 while ((iter.hasNext())) {
                     Long entry = iter.next();

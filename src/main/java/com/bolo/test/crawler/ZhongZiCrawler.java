@@ -26,9 +26,7 @@ public class ZhongZiCrawler extends AbstractCrawler{
     public ZhongZiCrawler(Spider spider){
         super(spider);
         spider.getSite().setRetryTimes(1);
-        spider.getSite().setRndSleepTime(2000);
-
-
+        spider.getSite().setRndSleepTime(1000);
     }
 
 
@@ -42,7 +40,7 @@ public class ZhongZiCrawler extends AbstractCrawler{
                 SimpleObject context1 = new SimpleObject();
                 context1.put(Request.KEY_PRIORITY,100);
 
-               for(int i = 0; i < elements.size()/2; i++){
+               for(int i = 0; i < elements.size(); i++){
                     Element element = elements.get(i);
                     String href = element.attr("href");
                     String title = element.attr("title");
@@ -72,24 +70,29 @@ public class ZhongZiCrawler extends AbstractCrawler{
         }));
     }
 
+
+
+
     public static void main(String[] args) throws Exception {
+        ZhongZiCrawler_Controller zhongZiCrawler_controller = new ZhongZiCrawler_Controller();
+        zhongZiCrawler_controller.start();
 
         Spider spider = SpiderManager.getInstance().createSpider("test");
         ZhongZiCrawler crawler = new ZhongZiCrawler(spider);
         Spider spider1 = SpiderManager.getInstance().createSpider("te1st");
-        long before = System.currentTimeMillis();
+//        long before = System.currentTimeMillis();
 //        crawler.initForTest();
-        crawler.getZhongZi();
+        //crawler.getZhongZi();
         SpiderManager.getInstance().startSpider(spider,null,crawler);
         SpiderManager.getInstance().startSpider(spider1,null,crawler);
 //        spider.start();
 //        spider1.start();
-        long after = System.currentTimeMillis();
-        System.out.println(ZhongZiCrawler.map.size());
-        System.out.println(after-before);
-//        crawler.destory();
-//        System.out.println(ThreadPoolManager.getCrawlerThreadPool().isShutdown());
-//        ThreadPoolManager.getCrawlerThreadPool().shutdown();
+//        long after = System.currentTimeMillis();
+//        System.out.println(ZhongZiCrawler.map.size());
+//        System.out.println(after-before);
+////        crawler.destory();
+////        System.out.println(ThreadPoolManager.getCrawlerThreadPool().isShutdown());
+////        ThreadPoolManager.getCrawlerThreadPool().shutdown();
 
     }
 }
