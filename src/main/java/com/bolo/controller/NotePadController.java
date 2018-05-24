@@ -66,7 +66,6 @@ public class NotePadController {
 
 //	@AuthManage("manager")
     @RequestMapping(value="test",method = RequestMethod.GET)
-//    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @ResponseBody
     public String hashset(HttpServletRequest req, HttpServletResponse resp,ModelMap model) throws Exception {
         //manager.startServer(args[0]);
@@ -159,13 +158,11 @@ public class NotePadController {
 	}
 	/**
 	 * 添加留言
-     * 事务方式：事务执行成功，sql成功。
 	 * @param notePad 留言
 	 * @param req  请求
 	 * @param resp  响应
 	 * @return
 	 */
-//    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	@RequestMapping(value="insertnote",method = RequestMethod.POST)
 	@ResponseBody
 	public String insertNote(NotePad notePad,HttpServletRequest req,HttpServletResponse resp){
