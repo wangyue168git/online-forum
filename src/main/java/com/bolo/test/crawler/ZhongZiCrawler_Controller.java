@@ -14,6 +14,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -32,6 +36,8 @@ import java.util.Map;
  */
 @Component
 public class ZhongZiCrawler_Controller {
+
+    protected Logger logger = LoggerFactory.getLogger("ZhongZiCrawler_Controller");
 
     @Autowired
     private MyBatisDao myBatisDao;//之前的类也要采用注入
@@ -45,7 +51,6 @@ public class ZhongZiCrawler_Controller {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
 
@@ -53,23 +58,16 @@ public class ZhongZiCrawler_Controller {
         return new AbstractSpiderListener(Spider.buildListenerContext(), 12 * 60 * 1000) {
             @Override
             public void onStartup(SimpleObject context, Object obj) {
-
+                logger.info("task begin");
             }
             @Override
             public void onEvent(String event, SimpleObject context, Object obj) {
-
+                logger.info("task erro");
             }
             @Override
             public void onComplete(SimpleObject contenxt, Object obj) {
                 try {
-
-                    ZhongziMapper zhongziMapper = myBatisDao.getSqlSession().getMapper(ZhongziMapper.class);
-                    for (Map.Entry<String,String> entry : ZhongZiCrawler.map.entrySet()){
-                        Zhongzi zhongzi = new Zhongzi();
-                        zhongzi.setTitle(entry.getKey());
-                        zhongzi.setTorrent(entry.getValue());
-                        zhongziMapper.insert(zhongzi);
-                    }
+                    saveZhongziByBatch();
                     logger.info("task finish");
                 } catch (Exception e) {
                     logger.error("saveSpiderListener Error", e);
@@ -77,4 +75,21 @@ public class ZhongZiCrawler_Controller {
             }
         };
     }
+
+
+    private void saveZhongziByBatch(){
+        //爬取数据保存逻辑
+        ZhongziMapper zhongziMapper = myBatisDao.getSqlSession().getMapper(ZhongziMapper.class);
+        List<Zhongzi> list = new ArrayList<>();
+        Zhongzi zhongzi;
+        for (Map.Entry<String,String> entry : ZhongZiCrawler.map.entrySet()){
+            zhongzi = new Zhongzi();
+            zhongzi.setTitle(entry.getKey());
+            zhongzi.setTorrent(entry.getValue());
+            list.add(zhongzi);
+        }
+        zhongziMapper.insertBatch(list);
+        logger.info("save finish");
+    }
+
 }

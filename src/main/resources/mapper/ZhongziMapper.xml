@@ -15,4 +15,15 @@
     insert into zhongzi (id,title,torrent) values (#{id},#{title},#{torrent})
   </insert>
 
+  <!--批处理操作，>1M 需要设置参数，否则会报错-->
+  <insert id="insertBatch">
+    INSERT INTO zhongzi
+    (id, title, torrent)
+    VALUES
+    <foreach collection ="list" item="zhongzi" separator =",">
+      (#{zhongzi.id}, #{zhongzi.title}, #{zhongzi.torrent})
+    </foreach >
+  </insert>
+
+
 </mapper>
