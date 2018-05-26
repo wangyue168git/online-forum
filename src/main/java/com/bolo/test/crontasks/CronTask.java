@@ -6,6 +6,7 @@ import com.bolo.entity.User;
 import com.bolo.redis.RedisCacheUtil;
 import com.bolo.service.UserService;
 import com.bolo.test.crawler.ZhongZiCrawler;
+import com.bolo.test.crawler.ZhongZiCrawler_Controller;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +17,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +46,8 @@ public class CronTask {
     private RedisCacheUtil redisCacheUtil;
     @Autowired
     private UserService service;
+    @Autowired
+    private ZhongZiCrawler_Controller zhongZiCrawler_controller;
 
     /**
      * 定时更新权限表
@@ -63,13 +68,9 @@ public class CronTask {
     }
 
     @Scheduled(initialDelay = 5000,fixedDelay = 60000*4320)
-    public void crawler(){
-        Spider spider = SpiderManager.getInstance().createSpider("test");
-        ZhongZiCrawler crawler = new ZhongZiCrawler(spider);
+    public void crawler() throws IOException {
         ZhongZiCrawler.map.clear();
-        crawler.getZhongZi();
-        spider.start();
-        logger.info("抓取种子数量：" +ZhongZiCrawler.map.size());
+        zhongZiCrawler_controller.start();
     }
 
     public void setJobContent(String jobContent) {

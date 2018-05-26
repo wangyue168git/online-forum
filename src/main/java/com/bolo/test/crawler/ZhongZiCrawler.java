@@ -58,7 +58,7 @@ public class ZhongZiCrawler extends AbstractCrawler{
                                         Document document1 = ContextUtil.getDocumentOfContent(context);
                                         Elements elements1 = document1.select("div#content").first().select("div.panel-body");
                                         String torrent = elements1.get(1).select("a").first().attr("href");
-                                        map.put(title,torrent);
+                                        map.put(title,"https://www.zhongziso.net" + torrent);
                                     }
                                 }));
                             }
@@ -90,9 +90,9 @@ public class ZhongZiCrawler extends AbstractCrawler{
 //        long after = System.currentTimeMillis();
 //        System.out.println(ZhongZiCrawler.map.size());
 //        System.out.println(after-before);
-////        crawler.destory();
-////        System.out.println(ThreadPoolManager.getCrawlerThreadPool().isShutdown());
-////        ThreadPoolManager.getCrawlerThreadPool().shutdown();
+//        crawler.destory();
+//        System.out.println(ThreadPoolManager.getCrawlerThreadPool().isShutdown());
+//        ThreadPoolManager.getCrawlerThreadPool().shutdown();
 
     }
 }

@@ -83,7 +83,7 @@ public class Spider extends AbstractTask implements Serializable {
 
     private SpiderAdder spiderAdder = SpiderAdder.getInstance();
 
-    protected static int emptySleepTime = 30000;//30000;
+    protected static int emptySleepTime = 10000;//30000;
 
     protected String uuid;
 

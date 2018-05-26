@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bolo.mybatis.mapper.ZhongziMapper">
+  <resultMap id="BaseResultMap" type="com.bolo.entity.Zhongzi">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="CHAR" property="id" />
+    <result column="title" jdbcType="CHAR" property="title" />
+    <result column="torrent" jdbcType="CHAR" property="torrent" />
+
+  </resultMap>
+
+  <insert id="insert" parameterType="com.bolo.entity.Zhongzi">
+    insert into zhongzi (id,title,torrent) values (#{id},#{title},#{torrent})
+  </insert>
+
+</mapper>

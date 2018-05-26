@@ -14,10 +14,12 @@
 		<typeAlias alias="notePad" type="com.bolo.entity.NotePad" />
 		<typeAlias alias="reply" type="com.bolo.entity.Reply" />
 	</typeAliases>
-    
+
     <mappers>
+		<mapper resource="mapper/ZhongziMapper.xml"/>
     	<mapper resource="mapper/UserMapper.xml"/>
     	<mapper resource="mapper/NotePad.xml"/>
     	<mapper resource="mapper/Reply.xml"/>
     </mappers>
+
 </configuration>

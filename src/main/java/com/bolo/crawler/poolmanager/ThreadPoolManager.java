@@ -7,7 +7,7 @@ package com.bolo.crawler.poolmanager;
 public class ThreadPoolManager {
     private static final CountableThreadPool proxyThreadPool = new CountableThreadPool(Integer.MAX_VALUE);
     private static final CountableThreadPool spiderThreadPool = new CountableThreadPool(Integer.MAX_VALUE);
-    private static final CountableThreadPool crawlerThreadPool = new CountableThreadPool(50);
+    private static final CountableThreadPool crawlerThreadPool = new CountableThreadPool(200);
     public static final CountableThreadPool getProxyThreadPool() {
         return proxyThreadPool;
     }
