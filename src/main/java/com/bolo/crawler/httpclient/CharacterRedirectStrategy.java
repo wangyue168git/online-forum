@@ -23,7 +23,7 @@ public class CharacterRedirectStrategy extends LaxRedirectStrategy {
                 loc = loc.replaceAll(c[0], c[1]);
             }
         }
-        if(loc != null && loc.contains("taobao")) {
+        if(loc != null) {
             log.info("location:" + loc);
         }
         return super.createLocationURI(loc);
