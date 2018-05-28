@@ -57,18 +57,17 @@ public class NotePadController {
 	private NotePadService noteService;
 	@Autowired
 	private ReplyService replyService;
-	@Autowired
-	private UserService service;
+
 	@Autowired
 	private RedisCacheUtil redisCacheUtil;
     @Autowired
     private NettyTCPServer tcpServer;
 
-//	@AuthManage("manager")
+
     @RequestMapping(value="test",method = RequestMethod.GET)
     @ResponseBody
     public String hashset(HttpServletRequest req, HttpServletResponse resp,ModelMap model) throws Exception {
-        //manager.startServer(args[0]);
+
         tcpServer.startServer();
         NotePad notePad = new NotePad();
         notePad.setTitle("123");
@@ -77,7 +76,7 @@ public class NotePadController {
     }
 
 	/**
-	 * 留言板主页
+	 * 主页
 	 * @param model
 	 * @return
 	 */
@@ -140,7 +139,7 @@ public class NotePadController {
 		return "page/usernotepad.jsp";
 	}
 	/**
-	 * 用户留言界面
+	 * 用户界面
 	 * @param model
 	 * @return
 	 */
