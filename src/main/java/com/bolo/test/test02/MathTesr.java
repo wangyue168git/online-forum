@@ -1,11 +1,15 @@
 package com.bolo.test.test02;
 
+import com.bolo.entity.NotePad;
 import com.sun.org.apache.bcel.internal.generic.NEW;
+import com.sun.org.apache.bcel.internal.generic.PUSH;
 
 import javax.swing.tree.TreeNode;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
+import java.util.concurrent.Semaphore;
 
 /**
  * @Author wangyue
@@ -43,7 +47,6 @@ public class MathTesr {
             else {
                 row ++;
             }
-
         }
         return found;
     }
@@ -107,7 +110,6 @@ public class MathTesr {
         }
 
         return root;
-
     }
 
     /*
@@ -159,6 +161,7 @@ public class MathTesr {
                     right --;
                 }
             }else {
+
                 if (array[left] <= array[mid]){
                     left = mid;
                 }else {
@@ -168,6 +171,38 @@ public class MathTesr {
         }
         return array[mid];
     }
+
+
+    /**
+     * 二叉搜索树按照中序遍历的顺序打印出来正好就是排序好的顺序，第K个节点就是第K大的节点，分别递归查找左右子树的第K个节点，
+     * 或使用非递归栈的方式查找，当count = k 时返回根节点
+     */
+    int count = 0;
+
+    public TreeNode KthNode(TreeNode root,int k){
+
+        if (root == null || k < 1)
+            return null;
+
+        count ++;
+
+        if (count == k){
+            return root;
+        }
+
+        TreeNode leftNode = KthNode(root.left,k);
+
+        if (leftNode != null)
+            return leftNode;
+
+        TreeNode rightNode = KthNode(root.right,k);
+
+        if (rightNode != null)
+            return rightNode;
+
+        return null;
+    }
+
 
     /*
     斐波那契数列
@@ -261,6 +296,28 @@ public class MathTesr {
         return greatest;
     }
 
+    public ArrayList<Integer> maxInWindows(int[] num,int size){
+        ArrayList<Integer> list = new ArrayList<>();
+        if (num == null || size < 1 || num.length < size)
+            return list;
+
+        int length = num.length - size + 1;
+
+        for (int i = 0; i < length; i++){
+            int current = size + 1;
+            int max = num[i];
+            for (int j = i; j < current; j++){
+                if (max < num[j])
+                    max = num[j];
+            }
+            list.add(max);
+        }
+        return list;
+    }
+
+
+
+
     /*
     计算树的深度
      */
@@ -289,6 +346,9 @@ public class MathTesr {
 
         return false;
     }
+
+
+
 
     /**
      * 空间换时间
@@ -336,15 +396,126 @@ public class MathTesr {
                 arrays[j+1] = arrays[j];
                 j--;
             }
+
+
             arrays[j+1] = temp;
         }
     }
 
 
+    public static void selectSort(int[] arrays){
+
+        int pos;
+
+        //外层循环控制需要排序的趟数
+        for (int i = 0; i < arrays.length - 1; i++){
+            //新的趟数、将角标重新赋值为0
+            pos = 0;
+
+            //内层循环控制遍历数组的个数并得到最大数的角标
+            for (int j = 0; j < arrays.length - i; j++){
+                if (arrays[j]  > arrays[pos]){
+                    pos = j;
+                }
+            }
+
+            //交换
+            int temp = arrays[pos];
+            arrays[pos] = arrays[arrays.length-1-i];
+            arrays[arrays.length-1-i] = temp;
+        }
+
+    }
 
 
 
+    public static void mergeSort(int[] arrays,int l,int r){
+        if (l == r) {
+            return;
+        }else {
+            int m = (l + r) /2;
+            mergeSort(arrays,l,m);
+            mergeSort(arrays,m + 1,r);
+            merge(arrays,l,m+1,r);
+        }
+    }
 
+    private static void merge(int[] arrays, int l, int m, int r) {
+
+        int[] leftArray = new int[m-l];
+
+        int[] rightArray = new int[r-m+1];
+
+        for (int i = l; i < m; i++){
+            leftArray[i-l] = arrays[i];
+        }
+        for (int i = m; i <= r; i++){
+            rightArray[i-m] = arrays[i];
+        }
+
+        int i = 0,j = 0;
+        int k = l;
+
+        while(i < leftArray.length && j < rightArray.length){
+            if (leftArray[i] < rightArray[j]){
+                arrays[k] = leftArray[i];
+                i++;
+                k++;
+            }else {
+                arrays[k] = rightArray[j];
+                j++;
+                k++;
+            }
+        }
+
+        while (i < leftArray.length){
+            arrays[k] = leftArray[i];
+            i++;
+            k++;
+        }
+        while (j < rightArray.length){
+            arrays[k] = rightArray[j];
+            k++;
+            j++;
+        }
+    }
+
+
+
+    public static void quickSort(int[] arr,int l,int r){
+        int i = l;
+        int j = r;
+
+        //支点
+        int pivot = arr[(l+r)/2];
+
+        //左右两端进行扫描，只要两端还没有交替，就一直扫描
+        while(i <= j){
+            //寻找直到比支点大的数
+            while(pivot > arr[i])
+                i++;
+            //寻找直到比支点小的数
+            while (pivot < arr[j])
+                j--;
+
+            //此时已经分别找到了比支点小的数，比支点大的数，进行交换
+            if (i <= j){
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+                i++;
+                j--;
+            }
+        }
+        //上面一个while保证了第一趟排序支点的左边比支点小，支点的右边比支点大
+
+        //左边再做排序，直到左边剩下一个数
+        if (l < j)
+            quickSort(arr,l,j);
+        //右边再做排序，直到右边剩下一个数
+        if (i < r)
+            quickSort(arr,i,r);
+    }
 
 
     public static void main(String[] args) throws InterruptedException {
@@ -352,6 +523,9 @@ public class MathTesr {
 //        System.out.println(treeNode);
 
 
+        Semaphore semaphore = new Semaphore(10,true);
+        semaphore.acquire();
+        semaphore.release();
 
         Thread threadA = new Thread(new Runnable() {
             @Override
