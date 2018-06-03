@@ -557,7 +557,8 @@ public class MathTesr {
 
         //使并行的两个线程变为串行执行，阻塞作用
         threadB.start();
-        threadB.join();//join（）方法使主线程进入阻塞状态，进而等待调用join方法的线程执行完毕，然后阻塞打开,wait()方法实现阻塞
+        //join（）方法使主线程进入阻塞状态，进而等待调用join方法的线程执行完毕，然后阻塞打开,wait()方法实现阻塞
+        threadB.join();
 
         threadA.start();
 
