@@ -2,9 +2,11 @@ package com.bolo.test.crontasks;
 
 import com.bolo.crawler.entitys.Spider;
 import com.bolo.crawler.poolmanager.SpiderManager;
+import com.bolo.entity.ActorInfo;
 import com.bolo.entity.User;
 import com.bolo.redis.RedisCacheUtil;
 import com.bolo.service.UserService;
+import com.bolo.test.crawler.BaiduCrawler;
 import com.bolo.test.crawler.ZhongZiCrawler;
 import com.bolo.test.crawler.ZhongZiCrawler_Controller;
 import lombok.extern.slf4j.Slf4j;
@@ -68,9 +70,17 @@ public class CronTask {
     }
 
     @Scheduled(initialDelay = 5000,fixedDelay = 60000*4320)
-    public void crawler() throws IOException {
-        ZhongZiCrawler.map.clear();
-        zhongZiCrawler_controller.start();
+    public void crawler() throws IOException, InterruptedException {
+//        ZhongZiCrawler.map.clear();
+//        zhongZiCrawler_controller.start();
+    }
+
+    @Scheduled(initialDelay = 1000,fixedDelay = 60000*4320)
+    public void crawlerBillboard() throws IOException, InterruptedException {
+        Spider spider = SpiderManager.getInstance().createSpider("s");
+        BaiduCrawler baiduCrawler = new BaiduCrawler(spider);
+        baiduCrawler.getHot();
+        SpiderManager.getInstance().startSpider(spider, null, baiduCrawler);
     }
 
     public void setJobContent(String jobContent) {
