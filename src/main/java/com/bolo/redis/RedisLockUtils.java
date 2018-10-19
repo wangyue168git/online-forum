@@ -49,6 +49,7 @@ public class RedisLockUtils {
                         return connection.setNX(jedisTemplate.getStringSerializer().serialize(lockKey), jedisTemplate.getStringSerializer().serialize(identifier));
                     }
                 })).booleanValue();
+                //如果程序在此时奔溃，会导致没办法设置锁时间，导致其他人无法获取锁
                 if (acquiredLock) {
                     jedisTemplate.execute(new RedisCallback<Boolean>() {
                         public Boolean doInRedis(RedisConnection connection) throws DataAccessException {
@@ -78,11 +79,14 @@ public class RedisLockUtils {
         }
     }
 
-    public static void unLock(final RedisTemplate jedisTemplate, final String lockName) {
+    public static void unLock(final RedisTemplate jedisTemplate, final String lockName,final String userTag) {
         if (!isEmpty(lockName)) {
             jedisTemplate.execute(new RedisCallback<Void>() {
                 public Void doInRedis(RedisConnection connection) throws DataAccessException {
-                    connection.del(new byte[][]{jedisTemplate.getStringSerializer().serialize(lockName)});
+                    String str = String.valueOf(connection.get(jedisTemplate.getStringSerializer().serialize(lockName)));
+                    if (str.equals(userTag)) {
+                        connection.del(new byte[][]{jedisTemplate.getStringSerializer().serialize(lockName)});
+                    }
                     return null;
                 }
             });
