@@ -2,18 +2,9 @@ package com.bolo.redis;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisStringCommands;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.types.Expiration;
 import redis.clients.jedis.Jedis;
 
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
-import java.util.UUID;
 
 /**
  * Redis分布式锁 --http://www.importnew.com/27477.html
