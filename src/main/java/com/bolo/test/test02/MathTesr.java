@@ -1,14 +1,15 @@
 package com.bolo.test.test02;
 
 import com.bolo.entity.NotePad;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.RateLimiter;
 import com.sun.org.apache.bcel.internal.generic.NEW;
 import com.sun.org.apache.bcel.internal.generic.PUSH;
+import org.springframework.data.redis.connection.RedisClusterNode;
 
 import javax.swing.tree.TreeNode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -518,14 +519,34 @@ public class MathTesr {
     }
 
 
+    public static void circle(int[][] array){
+        int line = array.length;
+        int column = array[0].length;
+        for (int i = 0; i < line; i++){
+            for (int j = 0; j < column; j++){
+                System.out.println(array[i][j]);
+            }
+        }
+    }
+
+
     public static void main(String[] args) throws InterruptedException {
 //        TreeNode treeNode = new MathTesr().reConstructBinaryTree(new int[]{1,2,4,3},new int[]{4,2,1,3});
 //        System.out.println(treeNode);
 
 
+        List<String> list = Lists.newArrayList("1","2","3");
+
+
         Semaphore semaphore = new Semaphore(10,true);
         semaphore.acquire();
         semaphore.release();
+
+        RateLimiter limiter = RateLimiter.create(10);
+        limiter.acquire(100);
+
+
+
 
         Thread threadA = new Thread(new Runnable() {
             @Override
@@ -561,7 +582,6 @@ public class MathTesr {
         threadB.join();
 
         threadA.start();
-
 
     }
 

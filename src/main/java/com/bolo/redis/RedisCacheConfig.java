@@ -55,6 +55,11 @@ public class RedisCacheConfig extends CachingConfigurerSupport  {
         return redisTemplate;
     }
 
+    /**
+     * redis缓存管理
+     * @param redisTemplate
+     * @return
+     */
     @Bean
     public CacheManager cacheManager(RedisTemplate<?, ?> redisTemplate) {
         mRedisCacheManager = new RedisCacheManager(redisTemplate);

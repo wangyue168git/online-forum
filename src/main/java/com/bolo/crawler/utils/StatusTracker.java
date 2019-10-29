@@ -15,7 +15,6 @@ public class StatusTracker{
     public final static int STAT_RUNNING = 20;
     public final static int STAT_LOGIN_SUC = 30;
     public final static int STAT_SUC = 40;
-    public final static int STAT_WAITING = 99;
 
     private int status = 0;
     private CountDownLatch latch = new CountDownLatch(1);

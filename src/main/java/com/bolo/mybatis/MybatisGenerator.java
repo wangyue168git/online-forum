@@ -1,6 +1,7 @@
 package com.bolo.mybatis;
 
 
+import com.sun.org.apache.xpath.internal.operations.String;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
@@ -55,7 +56,6 @@ public class MybatisGenerator{
 //        user.setPermission("0");
 //        userMapper.insert(user);
 //        userMapper.deleteByPrimaryKey(user);
-
 
     }
 }

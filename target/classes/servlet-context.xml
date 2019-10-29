@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" 
-	xmlns:mvc="http://www.springframework.org/schema/mvc" 
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
 	http://www.springframework.org/schema/context 
 	http://www.springframework.org/schema/context/spring-context-3.0.xsd 
 	http://www.springframework.org/schema/mvc 
-    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+    http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task-3.2.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<description>Spring-web MVC配置</description>
 	
@@ -16,27 +20,154 @@
 		<context:exclude-filter type="annotation" 
 				expression="org.springframework.stereotype.Service" />
 	</context:component-scan>
-	
+
+    <context:component-scan base-package="com.bolo">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
 	
 	<!-- 当请求应用程序首页时，将执行/lode请求，还可以设定成forward -->
-	<mvc:view-controller path="/" view-name="redirect:/lode" />
+	<mvc:view-controller path="/" view-name="redirect:/shownotepad" />
 
 	<!-- 这两个类用来启动基于Spring MVC的注解功能，将控制器与方法映射加入到容器中 -->
-	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" /> 
-    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"> 
+	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+    <!-- 解决@responsebody 乱码问题 -->
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
      <property name="messageConverters">
        <list>
-        <bean id="UTF8StringHttpMessageConverter" class="com.bolo.controller.UTF8StringHttpMessageConverter"> </bean> 
-       </list> 
+           <bean
+                   class="org.springframework.http.converter.StringHttpMessageConverter">
+               <property name="supportedMediaTypes">
+                   <list>
+                       <value>text/plain;charset=UTF-8</value>
+                   </list>
+               </property>
+           </bean>
+        <bean id="UTF8StringHttpMessageConverter" class="com.bolo.test.test01.UTF8StringHttpMessageConverter"> </bean>
+       </list>
      </property> 
     </bean>
-   
+    <!-- 启用MVC注解 -->
+    <!--<mvc:annotation-driven/>-->
 
-   
-    
- 
- 
+    <!-- 启动对@AspectJ注解的支持 自定义注解生效 -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
 
-   
-  
+    <!-- 支持上传文件 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+      <property name="defaultEncoding" value="UTF-8"></property>
+      <property name="maxInMemorySize" value="10240000"></property>
+    </bean>
+
+
+    <!--shiro授权管理配置-->
+    <bean id="myAuthorizingRealm" class="com.bolo.test.test01.MyAuthorizingRealm"/>
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="myAuthorizingRealm"/>
+    </bean>
+
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <!--shiro 核心安全接口  -->
+        <property name="securityManager" ref="securityManager"></property>
+        <!--登录时的连接-->
+        <!--<property name="loginUrl" value="/show"></property>-->
+        <!--登录成功之后要跳转的连接-->
+        <!--<property name="successUrl" value="/admin"></property>-->
+        <!--未授权时跳转的连接  -->
+        <!--<property name="unauthorizedUrl" value="/lode"></property>-->
+        <!--filterChainDefinitions  -->
+        <!--<property name="filterChainDefinitions">-->
+        <!--<value>-->
+        <!--/login/loginForm = anon-->
+        <!--/logout = logout-->
+        <!--/** = authc-->
+        <!--</value>-->
+        <!--</property>-->
+    </bean>
+
+    <!--========================-如果使用注解方式验证将下面代码放开===============================-->
+    <!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
+        <property name="proxyTargetClass" value="true" />
+    </bean>
+
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+    <!--异常处理机制-->
+    <!--第一种,实现HandlerExceptionResolver接口-->
+    <bean id="exceptionHandler" class="com.bolo.test.excepresoler.MyExceptionHandler"/>
+    <!--第二种-->
+    <!--<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">-->
+        <!--<property name="exceptionMappings">-->
+            <!--<props>-->
+                <!--&lt;!&ndash;登录&ndash;&gt;-->
+                <!--<prop key="org.apache.shiro.authz.UnauthenticatedException">-->
+                    <!--redirect:/lode-->
+                <!--</prop>-->
+                <!--&lt;!&ndash;授权&ndash;&gt;-->
+                <!--<prop key="org.apache.shiro.authz.UnauthorizedException">-->
+                    <!--redirect:/admin/common/exceptionLog-->
+                <!--</prop>-->
+                <!--<prop key="com.bolo.test.reqlimit.RequestLimitException">-->
+                    <!--/error?name=RequestLimitException-->
+                <!--</prop>-->
+            <!--</props>-->
+        <!--</property>-->
+        <!--&lt;!&ndash; 定义默认的异常处理页面，当该异常类型的注册时使用 &ndash;&gt;-->
+        <!--<property name="defaultErrorView" value="/error?name=ex"></property>-->
+        <!--&lt;!&ndash; 定义异常处理页面用来获取异常信息的变量名，默认名为exception &ndash;&gt;-->
+        <!--<property name="exceptionAttribute" value="ex"></property>-->
+    <!--</bean>-->
+    <!--定时任务-->
+    <!--<import resource="quartz.xml"/>-->
+
+
+    <bean id="tcpServer" class= "com.bolo.test.nettys.server.NettyTCPServer" destroy-method="stopServer">
+        <constructor-arg ref="tcpConfig" />
+        <constructor-arg ref="myChannelInitializer" />
+    </bean>
+
+    <bean id="myChannelInitializer" class="com.bolo.test.nettys.server.MyChannelInitializer"/>
+
+    <bean id="tcpConfig" class="com.bolo.test.nettys.server.NettyConfig">
+        <property name="channelOptions" ref="tcpChannelOptions"/>
+        <property name="bossGroup" ref="bossGroup"/>
+        <property name="workerGroup" ref="workerGroup"/>
+        <property name="portNumber" value="10086"/>
+    </bean>
+
+    <util:map id="tcpChannelOptions" map-class="java.util.HashMap">
+        <entry>
+            <key><util:constant static-field="io.netty.channel.ChannelOption.SO_KEEPALIVE"/></key>
+            <value type="java.lang.Boolean">true</value>
+        </entry>
+        <entry>
+            <key><util:constant static-field="io.netty.channel.ChannelOption.SO_BACKLOG"/></key>
+            <value type="java.lang.Integer">100</value>
+        </entry>
+    </util:map>
+
+    <bean id="bossGroup" class="io.netty.channel.nio.NioEventLoopGroup" destroy-method="shutdownGracefully">
+        <constructor-arg type="int" index="0" value="2" />
+        <constructor-arg index="1" ref="bossThreadFactory" />
+    </bean>
+
+    <bean id="workerGroup" class="io.netty.channel.nio.NioEventLoopGroup" destroy-method="shutdownGracefully">
+        <constructor-arg type="int" index="0"
+                         value="8" />
+        <constructor-arg index="1" ref="workerThreadFactory" />
+    </bean>
+
+    <bean id="bossThreadFactory" class="com.bolo.test.nettys.server.NamedThreadFactory">
+        <constructor-arg type="java.lang.String" value="Server-Boss" />
+    </bean>
+
+    <bean id="workerThreadFactory" class="com.bolo.test.nettys.server.NamedThreadFactory">
+        <constructor-arg type="java.lang.String" index="0" value="Server-Worker" />
+    </bean>
+    <task:annotation-driven scheduler="taskScheduler"/>
+    <task:scheduler id="taskScheduler" pool-size="1"/>
+
 </beans>

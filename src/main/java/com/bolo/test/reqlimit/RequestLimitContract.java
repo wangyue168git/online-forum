@@ -2,14 +2,12 @@ package com.bolo.test.reqlimit;
 
 import com.bolo.redis.RedisCacheUtil;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,9 +33,9 @@ public class RequestLimitContract  {
         try{
             Object[] args = joinPoint.getArgs();
             HttpServletRequest request = null;
-            for (int i = 0; i < args.length; i++){
-                if(args[i] instanceof HttpServletRequest){
-                    request = (HttpServletRequest) args[i];
+            for (Object arg : args) {
+                if (arg instanceof HttpServletRequest) {
+                    request = (HttpServletRequest) arg;
                     break;
                 }
             }

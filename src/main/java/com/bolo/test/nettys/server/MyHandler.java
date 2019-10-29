@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 public class MyHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = Logger.getLogger(MyHandler.class.getName());
-    private ByteBuf firstMessage  = Unpooled.buffer(33);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -28,7 +27,7 @@ public class MyHandler extends ChannelInboundHandlerAdapter {
         byte[] s = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(s);
         System.out.println(new String(s));
-
+        ByteBuf firstMessage  = Unpooled.buffer(33);
         firstMessage.writeBytes("Hi...".getBytes());
         ctx.writeAndFlush(firstMessage);
 

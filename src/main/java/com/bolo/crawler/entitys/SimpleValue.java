@@ -44,16 +44,6 @@ public class SimpleValue implements Serializable {
     public Collection getCollection() {
         return (Collection) getValue();
     }
-
-    public Double convertToDouble(Double defaultValue) {
-        if (_value instanceof Number) {
-            return ((Number)_value).doubleValue();
-        }
-        if (_value instanceof String) {
-            return null;//StringUtil.convertStrToDouble(_value, defaultValue);
-        }
-        return defaultValue;
-    }
     public String toString() {
         if (_value != null) {
             return _value.toString();
